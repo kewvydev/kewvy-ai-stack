@@ -104,11 +104,12 @@ def project_root(path):
 
 
 class Installation:
-    def __init__(self, roots, scope, version, files):
+    def __init__(self, roots, scope, version, files, profile="core"):
         self.roots = roots
         self.scope = scope
         self.version = version
         self.files = files
+        self.profile = profile
         base = roots["package"] if scope == "global" else roots["project"] / ".ai-stack"
         self.state_path = base / "installation.json"
         self.backup_path = base / "backup.json"
@@ -123,7 +124,9 @@ class Installation:
                 or not isinstance(state.get("version"), str)
                 or state.get("schemaVersion") != 1 or state.get("scope") != self.scope
                 or state.get("roots") != {k: str(v) for k, v in self.roots.items()}
-                or state.get("selection") != {"client": "codex", "profile": "core"}):
+                or not isinstance(state.get("selection"), dict)
+                or state["selection"].get("client") != "codex"
+                or state["selection"].get("profile") not in {Path(x).stem for x in json.loads((SOURCE / "stack.json").read_text())["profiles"]}):
             raise Conflict("Installation state does not match this scope, location, or schema")
         for key, entry in state["files"].items():
             self.path(key)
@@ -167,7 +170,7 @@ class Installation:
         next_state = json_bytes({
             "schemaVersion": 1, "scope": self.scope, "version": self.version,
             "roots": {k: str(v) for k, v in self.roots.items()},
-            "selection": {"client": "codex", "profile": "core"}, "files": owned,
+            "selection": {"client": "codex", "profile": self.profile}, "files": owned,
         })
         return previous, next_state, changes
 
@@ -205,7 +208,7 @@ class Installation:
             atomic_write(self.state_path, previous)
             atomic_write(self.backup_path, old_backup)
             raise
-        print("Installed core content. Client loading and behavior require a separate session check.")
+        print("Installed selected content. Client loading and behavior require a separate session check.")
 
     def rollback(self, dry_run=False):
         raw = read(self.backup_path)
@@ -261,7 +264,70 @@ class Installation:
             atomic_write(self.state_path, current_state)
             raise
         atomic_write(self.backup_path, None)
-        print("Previous installation restored. Project decision records were preserved.")
+        print("Previous installation restored. Project records were preserved.")
+
+
+
+def profile_content(profile_id, active=None):
+    active = set() if active is None else active
+    if profile_id in active:
+        raise Conflict("Cyclic profile inheritance")
+    path = SOURCE / "profiles" / (profile_id + ".json")
+    if profile_id not in {Path(x).stem for x in json.loads((SOURCE / "stack.json").read_text())["profiles"]}:
+        raise Conflict(f"Unknown profile: {profile_id}")
+    profile = json.loads(path.read_text())
+    skills, guidance = [], []
+    for parent in profile.get("extends", []):
+        parent_skills, parent_guidance = profile_content(parent, active | {profile_id})
+        skills.extend(parent_skills)
+        guidance.extend(parent_guidance)
+    skills.extend(profile["skills"])
+    guidance.append(profile["description"])
+    return list(dict.fromkeys(skills)), list(dict.fromkeys(guidance))
+
+
+def declared_versions(root, profile):
+    if profile == "spring-boot":
+        import xml.etree.ElementTree as ET
+        pom = root / "pom.xml"
+        if not pom.exists():
+            return "No pom.xml detected. Inspect Java and Spring Boot versions before coding."
+        try:
+            xml = ET.fromstring(read(pom))
+        except ET.ParseError as error:
+            raise Conflict(f"Invalid pom.xml: {error}") from error
+        def value(path):
+            element = xml.find(path)
+            return " ".join(element.text.split()) if element is not None and element.text else "not declared"
+        boot = value("{*}properties/{*}spring-boot.version")
+        if value("{*}parent/{*}artifactId") == "spring-boot-starter-parent":
+            boot = value("{*}parent/{*}version")
+        java = value("{*}properties/{*}java.version")
+        if java == "not declared":
+            java = value("{*}properties/{*}maven.compiler.release")
+        return "Declared Spring Boot: " + boot + "; Java: " + java + ". Use Maven; inspect resolved versions before coding."
+    package = root / "package.json"
+    if profile == "core" or not package.exists():
+        return "Inspect installed framework versions and existing check commands before coding."
+    data = json.loads(read(package))
+    if not isinstance(data, dict) or any(not isinstance(data.get(key, {}), dict) for key in ("dependencies", "devDependencies")):
+        raise Conflict("package.json must contain an object with dependency maps")
+    dependencies = {**data.get("devDependencies", {}), **data.get("dependencies", {})}
+    names = {"nestjs": ["@nestjs/core"], "react": ["react"], "nextjs": ["react", "next"]}[profile]
+    return "Declared dependency ranges: " + "; ".join(name + "=" + str(dependencies.get(name, "not declared")).replace("\n", " ").replace("\r", " ") for name in names) + ". Inspect installed versions; do not upgrade automatically."
+
+
+def add_skills(files, root, skills):
+    for name in skills:
+        source = SOURCE / "skills" / name
+        if not (source / "SKILL.md").is_file():
+            raise Conflict(f"Selected skill is missing from the global package: {name}")
+        for path in sorted(source.rglob("*")):
+            if path.is_symlink():
+                raise Conflict(f"Symlink skill source: {path}")
+            if path.is_file():
+                relative = Path(".agents/skills") / name / path.relative_to(source)
+                files[str(relative)] = (root / relative, "file", path.read_bytes())
 
 
 def build(args):
@@ -294,6 +360,9 @@ def build(args):
         files["bin/ai-stack"] = (roots["bin"] / "ai-stack", "file", wrapper)
         rules = (SOURCE / adapter["globalInstructions"]).read_bytes().rstrip()
         files["codex/AGENTS.md"] = (codex / "AGENTS.md", "block", BEGIN + b"\n" + rules + b"\n" + END)
+        files["codex/agents/verifier.toml"] = (codex / "agents/verifier.toml", "file", (SOURCE / manifest["nativeAgents"][0]).read_bytes())
+        files["codex/stack-development.config.toml"] = (codex / "stack-development.config.toml", "file", (SOURCE / manifest["mcpConfiguration"]).read_bytes())
+        print("MCP definitions are available through --profile stack-development; authentication and connection checks are separate.")
         return Installation(roots, "global", manifest["version"], files)
     if args.target is None:
         raise Conflict("A project target is required unless --global is selected")
@@ -302,12 +371,23 @@ def build(args):
         raise Conflict("Non-empty project AGENTS.override.md would hide stack guidance")
     if args.command == "init" and block(read(codex / "AGENTS.md")) is None:
         raise Conflict("Install global core first, using the same Codex home")
+    old_state = read(root / ".ai-stack/installation.json")
+    recorded = json.loads(old_state)["selection"]["profile"] if old_state else "core"
+    profile = getattr(args, "profile", None) or recorded
+    if old_state and profile != recorded and recorded != "core":
+        raise Conflict("Changing an initialized profile requires rollback first; existing files were preserved")
+    skills, guidance = profile_content(profile)
     context = (SOURCE / adapter["projectInstructions"]).read_bytes().rstrip()
+    context += ("\n\nSelected profile: `" + profile + "`.\n" + "\n".join(guidance) + "\n" + declared_versions(root, profile) + "\nSelected skills: " + ", ".join(skills) + ".").encode()
     files = {
         "AGENTS.md": (root / "AGENTS.md", "block", BEGIN + b"\n" + context + b"\n" + END),
         ".ai-stack/decisions.md": (root / ".ai-stack/decisions.md", "seed", (SOURCE / adapter["projectDecisions"]).read_bytes()),
     }
-    return Installation({"project": root}, "project", manifest["version"], files)
+    for name in ("tasks", "findings"):
+        key = ".ai-stack/" + name + ".md"
+        files[key] = (root / key, "seed", (SOURCE / "templates" / (name + ".md")).read_bytes())
+    add_skills(files, root, skills)
+    return Installation({"project": root}, "project", manifest["version"], files, profile)
 
 
 def main():
@@ -322,6 +402,8 @@ def main():
         command.add_argument("--bin-dir", default="~/.local/bin")
         command.add_argument("--codex-home", default=os.environ.get("CODEX_HOME", "~/.codex"))
         command.add_argument("--dry-run", action="store_true")
+        if name != "install":
+            command.add_argument("--profile", help="Project technology profile; defaults to the recorded profile or core")
     args = parser.parse_args()
     try:
         if args.command == "init" and args.global_scope:

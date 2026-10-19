@@ -47,3 +47,13 @@ SDD does not automatically approve unresolved product decisions or external acti
 When finished, report the outcome and retain useful evidence. The next change
 starts in lightweight mode unless explicit authorization defines another scope.
 The SDD engine and approvals within its stages are still undecided.
+
+## Incomplete work and reusable findings
+
+On resume, read relevant existing task/finding records or their links from
+.ai-stack/tasks.md and .ai-stack/findings.md. Retain unfinished acceptance criteria,
+completed evidence, blockers and the next action. Do not report 100 percent merely
+because files were created or checks ran. Verify old findings before reusing them,
+mark hypotheses, preserve corrections, and retire stale entries. A recorded
+suggestion does not authorize changes to another module. No external capture
+service is required or installed for this workflow.

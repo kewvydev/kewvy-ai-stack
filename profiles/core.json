@@ -1,8 +1,13 @@
 {
   "id": "core",
   "status": "implemented",
-  "description": "Global ODD guidance and project decisions for Codex. Skills, agents, hooks, and MCP are not selected.",
-  "roles": [],
-  "skills": [],
-  "mcp": []
+  "description": "Shared ODD workflow; reuse project commands and keep incomplete work and reusable findings local.",
+  "roles": [
+    "verifier"
+  ],
+  "mcp": [],
+  "extends": [],
+  "skills": [
+    "diagnosing-bugs"
+  ]
 }

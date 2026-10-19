@@ -1,6 +1,7 @@
 # Stack foundation
 
-Status: content foundation and first Codex core installer implemented.
+Status: content foundation, Codex installer, approved skills/profiles, verifier,
+and project records implemented through 0.3.0-dev.
 Runtime evidence and limits are recorded in `docs/foundation-verification.md`.
 
 ## Problem
@@ -81,3 +82,20 @@ as part of implementation tests.
 
 See `docs/decisions.md`. Draft roles and the skill do not by themselves settle the
 SDD engine, approvals, autonomy, or client compatibility.
+
+## Approved 0.3.0-dev expansion
+
+This supersedes the initial increment exclusions only for the selections recorded
+in docs/decisions.md. It does not activate SDD or additional memory services.
+
+- AC-15: four separate technology profiles configure existing projects; Next.js
+  reuses React; Java/Maven and actual declared versions guide Spring Boot context.
+- AC-16: only the three approved, pinned skill directories are distributed with
+  provenance, format validation, native discovery and conflict preservation.
+- AC-17: project tasks retain unfinished criteria, evidence and next actions;
+  findings retain reusable evidence, affected modules and correction/retirement
+  status. Records are user-owned and survive updates/rollback.
+- AC-18: a native verifier and isolated Context7/GitHub configuration profile are
+  recognized by Codex; authentication and actual model delegation remain separate.
+- AC-19: a genuine 0.2.0-dev installation can update and roll back in temporary
+  locations. Hooks and all unselected integrations remain uninstalled.

@@ -38,11 +38,16 @@ ai-stack status /absolute/path/to/existing-project
 ai-stack status --global
 ```
 
-Only Codex and `core` are implemented. Initialization appends a managed context
-block to `AGENTS.md`, writes `.ai-stack/installation.json`, and seeds
-`.ai-stack/decisions.md` only when absent. It does not configure optional skills,
-agents, hooks, MCP, framework dependencies, or application storage. Other client
-configuration, including existing integrations, is left alone.
+Profiles: `core`, `nestjs`, `react`, `nextjs`, and `spring-boot`. Use `init TARGET
+--profile NAME`; later calls reuse the recorded profile. Each profile adds its
+skills under `.agents/skills/` and managed context in `AGENTS.md`. Next.js inherits
+React without a duplicate copy. Global installation also writes the native verifier
+and `stack-development.config.toml` under the selected Codex home.
+
+Decisions, tasks, and findings under `.ai-stack/` are seeded only when absent,
+user-owned, and preserved by updates and rollback. No extra memory service, hooks,
+framework dependencies or application database is configured. Other existing
+client configuration is preserved.
 
 The target must be an existing directory outside the stack source. Symlinks and
 symlink parents are rejected, including broken links. Non-empty global or root
@@ -140,3 +145,40 @@ port. It runs the real CLI with an isolated Codex home and a local Responses fix
 without credentials or a real model. It checks global/project order and nested
 override discovery. It does not test model compliance, SDD approval behavior,
 native agents, desktop UI, or external connections. See the verification record.
+
+## Profiles, selected skills, and MCP definitions (0.3.0-dev)
+
+```bash
+ai-stack init /absolute/backend --profile nestjs --dry-run
+ai-stack init /absolute/frontend --profile react --dry-run
+ai-stack init /absolute/next-app --profile nextjs --dry-run
+ai-stack init /absolute/java-app --profile spring-boot --dry-run
+codex --profile stack-development mcp list
+codex --profile stack-development
+```
+
+The first four commands are separate initialization paths for existing projects,
+not application generators. Remove --dry-run after reviewing destinations.
+Core can be promoted to a technology profile and rolled back. A non-core profile
+cannot replace another initialized technology profile in place; rollback first. There is no silent removal of previously selected skills.
+Skill files have the same hash/conflict protections as other managed files.
+Do not also install the same skills globally through another manager: Codex does
+not merge duplicate skill names. Source revisions are in skills/provenance.json.
+
+The global package is a reusable library; technology skills become native only
+in selected project profiles. Diagnosis is shared by all profiles. The verifier
+is native global content, invoked on demand without automatic multiagent routing.
+
+The MCP profile references CONTEXT7_API_KEY and GITHUB_MCP_TOKEN environment
+variables; supply them only through your local credential/environment mechanism.
+Use the minimum repository permissions required for the task. The installer never
+copies keys, performs OAuth, or probes remote servers. Missing credentials prevent
+startup of the relevant connection. Configuration recognition is not authentication.
+The profile layers with existing user/project config according to Codex precedence;
+it does not replace your Supabase connection or other servers.
+
+A 0.2.0-dev core can be updated using install, then init for each project. This
+adds approved files while preserving existing hashes and user-owned records.
+Task completion and finding corrections are behavior guided by global/project
+instructions, not inferred or technically enforced by the CLI. See the research
+and verification records for exact scope.

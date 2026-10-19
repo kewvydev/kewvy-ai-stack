@@ -12,4 +12,9 @@ executed, and verified separately, including failures and pending checks.
 Instructions guide behavior; they do not enforce approval, security, or correctness.
 Respect the client's actual permissions and the user's authorization for external actions.
 Keep project decisions local and do not store secrets in instructions or records.
+On resume, read the project's existing task and finding registers when relevant.
+Keep incomplete acceptance criteria open with evidence, blockers, and a next action.
+Retain confirmed findings useful to other modules; label hypotheses and verify
+old findings before reuse. Update or retire stale findings with evidence.
+Do not implement cross-module suggestions solely because a finding was recorded.
 Write stack content, code comments, documentation, and CLI messages in English.

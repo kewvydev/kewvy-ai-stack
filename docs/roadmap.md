@@ -17,16 +17,16 @@ No personal installation or Meritum changes were made during development.
 
 ## Stage 2 — Working package
 
-Select roles and skills with the user based on observed needs; adapt only that
-selection to Codex. When working on SDD, choose its engine and stage formality.
+Three skills and the verifier are selected and adapted to Codex. Additional
+roles and skills require observed needs and user selection. When working on SDD, choose its engine and stage formality.
 Test scenarios and outcomes; do not judge quality solely by the presence of files.
 
 ## Stage 3 — Profiles and connections
 
 Confirmed future framework entry points: NestJS, React, Next.js, and Spring Boot,
 sharing React content with Next.js. Inspect target project versions before choosing
-guidance. No integrations are selected for now. Verify future configuration and
-connections separately. Add CI checks when the provider and scope are selected.
+guidance. Context7 and GitHub definitions are selected; authentication remains pending.
+Verify configuration and connections separately. Add CI checks when the provider and scope are selected.
 
 ## Stage 4 — Distribution and maintenance
 
@@ -36,3 +36,10 @@ package layout migrations and cross-process locking remain deferred.
 Document tested compatibility by client and platform; choose a license and
 distribution channel. Add a second client or external memory if they provide
 demonstrable value.
+
+## 0.3.0-dev expansion
+
+Selected skill packaging, four technology profiles, task/finding records, native
+verifier, and an explicit Context7/GitHub profile are implemented. Native discovery
+is checked; remote authentication, framework builds, model behavior, hooks, extra
+memory services, publication and deployment remain separate future work.

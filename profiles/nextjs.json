@@ -1,0 +1,11 @@
+{
+  "id": "nextjs",
+  "status": "implemented",
+  "description": "Reuse the React profile without copying its skills twice. Inspect Next.js and router versions. Prefer version-matched bundled documentation when present; preserve framework-managed AGENTS.md blocks. Do not add next-dev-loop unless its runtime dependencies are separately approved.",
+  "roles": [],
+  "mcp": [],
+  "extends": [
+    "react"
+  ],
+  "skills": []
+}

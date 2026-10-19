@@ -69,6 +69,11 @@ def main():
         require(server["source"].startswith("https://"), f"Invalid source: {server['id']}")
         require(server["enabled"] is False, "The initial catalog does not enable connections")
 
+    for relative in manifest.get("nativeAgents", []):
+        require_file(relative)
+        require(relative in package_files, f"Native agent missing from installation: {relative}")
+    require_file(manifest["mcpConfiguration"])
+    require(manifest["mcpConfiguration"] in package_files, "MCP definitions missing from package")
     profile_ids = set()
     for relative in manifest["profiles"]:
         profile = read_json(relative)
@@ -76,6 +81,14 @@ def main():
         profile_ids.add(profile["id"])
         for key, known in (("roles", roles), ("skills", skills), ("mcp", server_ids)):
             require(set(profile[key]).issubset(known), f"Unknown references in {relative}: {key}")
+
+    profiles = {read_json(path)["id"]: read_json(path) for path in manifest["profiles"]}
+    def visit(profile_id, active):
+        require(profile_id in profiles and profile_id not in active, f"Invalid profile inheritance: {profile_id}")
+        for parent in profiles[profile_id].get("extends", []):
+            visit(parent, active | {profile_id})
+    for profile_id in profiles:
+        visit(profile_id, set())
 
     # Check relative Markdown links, including the resources shipped with each skill.
     for path in ROOT.rglob("*.md"):

@@ -98,3 +98,29 @@ other operating systems, real integrations, concurrent installers, or power-loss
 recovery. One-operation recovery and layout-migration limits are documented in
 `installation.md`. `supportedClients` remains empty to avoid implying broader
 compatibility than the named CLI discovery check.
+
+## Approved profiles, skills and records — 2026-10-19
+
+Version 0.3.0-dev. The user's answers approved the three skills, Context7/GitHub,
+verifier first, Java/Maven with recent versions preferred, and persistence of
+incomplete tasks and reusable project findings. Hooks and extra memory remain deferred.
+
+| Criterion | Evidence | Result |
+| --- | --- | --- |
+| AC-15 | Four profile subprocess scenarios; Next.js shares the React skill once; manifest ranges and Maven/POM context retained without scaffolding | Pass for configuration |
+| AC-16 | Three pinned directories, concise entrypoints, retained original guidance/provenance, four Agent Skills validator passes including existing SDD | Pass for packaging and format |
+| AC-17 | User-edited tasks/findings survive update and rollback; guidance preserves unfinished criteria and correction history | Pass for preservation; model recordkeeping not evaluated |
+| AC-18 | Actual Codex CLI 0.162.1 advertises the verifier and each selected skill in core, nested, NestJS, React, Next.js and Spring Boot request scenarios; recognizes both MCP definitions using stack-development | Pass for discovery/configuration; no delegation/authentication |
+| AC-19 | Genuine e05526a baseline 0.2.0-dev installed, upgraded to 0.3.0-dev and rolled back using temporary source/package/project/Codex paths | Pass |
+
+Executed: content validator; 25 installer tests; all four Agent Skills validators;
+bash syntax check of the retained optional diagnosis helper; native loading fixture.
+The helper was not executed interactively. Framework skills were not behaviorally
+evaluated against applications. Java/Maven were absent from PATH, so no Spring
+build ran. The native fixture uses a local Responses stub, no credentials and no
+external calls. It verifies discovery, not model compliance or actual delegation.
+
+The host's existing Supabase connection was inspected as configuration only:
+enabled, project scoped, auth unknown and no read_only=true parameter. It was left
+unchanged. No personal install, Meritum change, external authentication, deployment,
+new storage layer, or hook activation was performed.

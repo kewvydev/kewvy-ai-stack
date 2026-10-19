@@ -11,5 +11,11 @@ Record new confirmed decisions in the project's existing register, or in
 `.ai-stack/decisions.md` when no register exists. Retain their source, scope,
 and corrections. Do not mix information from other projects or store secrets.
 
-Selected profile: `core`. No skills, custom agents, hooks, or MCP connections
-are installed by this profile. The global installation provides workflow guidance.
+Read `.ai-stack/tasks.md` and `.ai-stack/findings.md` for incomplete work and
+reusable project findings, or follow their links to existing records. Update
+those user-owned records when a task remains incomplete or a durable finding
+will help another module. Do not turn suggestions into authorized tasks.
+
+The selected technology profile and skills are listed below. Global guidance
+provides the shared workflow; the optional verifier performs independent review.
+No hooks or additional memory service are installed.

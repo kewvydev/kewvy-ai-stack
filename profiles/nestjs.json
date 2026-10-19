@@ -1,0 +1,13 @@
+{
+  "id": "nestjs",
+  "status": "implemented",
+  "description": "Inspect NestJS and TypeScript versions. Reuse modules, DI, validation, authorization and API contracts. Run existing tests and builds; do not assume a runner or ORM.",
+  "roles": [],
+  "mcp": [],
+  "extends": [
+    "core"
+  ],
+  "skills": [
+    "nestjs-best-practices"
+  ]
+}

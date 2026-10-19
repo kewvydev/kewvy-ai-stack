@@ -250,13 +250,14 @@ class InstallerTests(unittest.TestCase):
                 installation.apply()
         self.assertEqual(before, snapshot(self.base))
 
-    def test_core_does_not_install_optional_modules(self):
+    def test_core_installs_only_approved_capabilities(self):
         self.initialize()
         for root in (self.codex, self.project):
             self.assertFalse((root / "config.toml").exists())
             self.assertFalse((root / "hooks.json").exists())
-            self.assertFalse((root / "agents").exists())
-            self.assertFalse((root / ".agents").exists())
+        self.assertEqual([p.name for p in (self.codex / "agents").iterdir()], ["verifier.toml"])
+        self.assertTrue((self.codex / "stack-development.config.toml").exists())
+        self.assertEqual([p.name for p in (self.project / ".agents/skills").iterdir()], ["diagnosing-bugs"])
 
     def test_interrupted_update_can_be_rolled_back(self):
         self.install()
@@ -300,6 +301,92 @@ class InstallerTests(unittest.TestCase):
                 self.cli("install", ok=False)
                 self.assertEqual(before, snapshot(self.base))
 
+
+    def test_framework_profiles_are_separate_and_next_reuses_react(self):
+        self.install()
+        expected = {
+            "nestjs": {"diagnosing-bugs", "nestjs-best-practices"},
+            "react": {"diagnosing-bugs", "vercel-react-best-practices"},
+            "nextjs": {"diagnosing-bugs", "vercel-react-best-practices"},
+            "spring-boot": {"diagnosing-bugs"},
+        }
+        for profile, skills in expected.items():
+            project = self.base / profile
+            project.mkdir()
+            self.cli("init", project, "--profile", profile)
+            self.assertEqual({p.name for p in (project / ".agents/skills").iterdir()}, skills)
+            before = snapshot(project)
+            self.cli("init", project)
+            self.assertEqual(before, snapshot(project))
+            state = json.loads((project / ".ai-stack/installation.json").read_text())
+            self.assertEqual(state["selection"]["profile"], profile)
+            self.assertFalse((project / "package.json").exists())
+            self.assertFalse((project / "pom.xml").exists())
+
+    def test_user_records_survive_update_and_rollback(self):
+        self.initialize()
+        records = {}
+        for name in ("tasks", "findings"):
+            path = self.project / ".ai-stack" / (name + ".md")
+            path.write_text("# " + name + "\nConfirmed project knowledge.\n")
+            records[path] = path.read_bytes()
+        self.next_version()
+        self.install()
+        self.cli("init", self.project)
+        self.cli("rollback", self.project)
+        for path, content in records.items():
+            self.assertEqual(path.read_bytes(), content)
+
+    def test_skill_conflict_and_profile_change_preserve_project(self):
+        self.install()
+        self.cli("init", self.project, "--profile", "react")
+        before = snapshot(self.project)
+        self.cli("init", self.project, "--profile", "nestjs", ok=False)
+        self.assertEqual(before, snapshot(self.project))
+        skill = self.project / ".agents/skills/vercel-react-best-practices/SKILL.md"
+        skill.write_text(skill.read_text() + "\nLocal customization.\n")
+        before = snapshot(self.project)
+        self.cli("init", self.project, ok=False)
+        self.assertEqual(before, snapshot(self.project))
+
+    def test_declared_versions_and_maven_are_context_not_scaffolding(self):
+        self.install()
+        package = self.project / "package.json"
+        package.write_text(json.dumps({"dependencies": {"react": "^19.0.0", "next": "^16.0.0"}}))
+        self.cli("init", self.project, "--profile", "nextjs")
+        context = (self.project / "AGENTS.md").read_text()
+        self.assertIn("react=^19.0.0", context)
+        self.assertIn("next=^16.0.0", context)
+        spring = self.base / "spring"
+        spring.mkdir()
+        (spring / "pom.xml").write_text('<project xmlns="http://maven.apache.org/POM/4.0.0"><parent><artifactId>spring-boot-starter-parent</artifactId><version>4.0.0</version></parent><properties><java.version>21</java.version></properties></project>')
+        self.cli("init", spring, "--profile", "spring-boot")
+        context = (spring / "AGENTS.md").read_text()
+        self.assertIn("4.0.0", context)
+        self.assertIn("Java: 21", context)
+        self.assertIn("Maven", context)
+
+    def test_unowned_skill_and_invalid_profile_block_all_writes(self):
+        self.install()
+        path = self.project / ".agents/skills/nestjs-best-practices/SKILL.md"
+        path.parent.mkdir(parents=True)
+        path.write_text("Existing user skill")
+        before = snapshot(self.project)
+        self.cli("init", self.project, "--profile", "nestjs", ok=False)
+        self.assertEqual(before, snapshot(self.project))
+        self.cli("init", self.project, "--profile", "../../outside", ok=False)
+        self.assertEqual(before, snapshot(self.project))
+
+
+
+    def test_core_can_be_promoted_and_rolled_back(self):
+        self.initialize()
+        self.cli("init", self.project, "--profile", "nestjs")
+        self.assertTrue((self.project / ".agents/skills/nestjs-best-practices/SKILL.md").exists())
+        self.cli("rollback", self.project)
+        state = json.loads((self.project / ".ai-stack/installation.json").read_text())
+        self.assertEqual(state["selection"]["profile"], "core")
+        self.assertFalse((self.project / ".agents/skills/nestjs-best-practices/SKILL.md").exists())
 
 if __name__ == "__main__":
     unittest.main()

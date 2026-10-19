@@ -67,6 +67,14 @@ def main():
         (nested / "AGENTS.override.md").write_text("NESTED_OVERRIDE_SENTINEL\n")
         (nested / "AGENTS.md").write_text("IGNORED_NESTED_SENTINEL\n")
         subprocess.run(["git", "init", "--quiet", str(project)], check=True, capture_output=True)
+        profile_projects = []
+        for profile in ("nestjs", "react", "nextjs", "spring-boot"):
+            target = base / profile
+            target.mkdir()
+            (target / "AGENTS.md").write_text("PROJECT_PERSONAL_SENTINEL\n")
+            subprocess.run(["git", "init", "--quiet", str(target)], check=True, capture_output=True)
+            subprocess.run([sys.executable, str(ROOT / "tools/stack.py"), "init", str(target), "--profile", profile, *options], check=True, capture_output=True)
+            profile_projects.append((target, profile))
         with ThreadingHTTPServer(("127.0.0.1", 0), Handler) as server:
             worker = threading.Thread(target=server.serve_forever, daemon=True)
             worker.start()
@@ -83,14 +91,19 @@ apps = false
 plugins = false
 memories = false
 hooks = false
-multi_agent = false
+multi_agent = true
 '''
             (codex_home / "config.toml").write_text(config)
             environment = {k: v for k, v in os.environ.items() if not k.startswith(("OPENAI_", "CODEX_"))}
             environment["CODEX_HOME"] = str(codex_home)
             environment["RUST_LOG"] = "error"
+            mcp = subprocess.run([executable, "--no-daemon", "--profile", "stack-development", "mcp", "list", "--json"],
+                                 env=environment, capture_output=True, text=True, timeout=15)
+            if mcp.returncode or {item["name"] for item in json.loads(mcp.stdout)} != {"context7", "github"}:
+                raise RuntimeError("Codex did not recognize the selected MCP configuration profile")
+            print("PASS: Codex recognizes Context7 and GitHub definitions; connections were not authenticated.")
             try:
-                for cwd in (project, nested):
+                for cwd, profile in [(project, "core"), (nested, "core"), *profile_projects]:
                     start = len(requests)
                     result = subprocess.run([
                         executable, "--no-daemon", "exec", "--ephemeral", "--json", "--color", "never",
@@ -102,11 +115,19 @@ multi_agent = false
                     if len(requests) == start:
                         raise RuntimeError("Codex did not send a model request to the local fixture")
                     payload = json.dumps(requests[start])
-                    sentinels = ["GLOBAL_PERSONAL_SENTINEL", "Use a lightweight ODD flow", "PROJECT_PERSONAL_SENTINEL", "Selected profile: `core`"]
+                    sentinels = ["GLOBAL_PERSONAL_SENTINEL", "Use a lightweight ODD flow", "PROJECT_PERSONAL_SENTINEL", f"Selected profile: `{profile}`"]
                     if cwd == nested:
                         sentinels.append("NESTED_OVERRIDE_SENTINEL")
                         if "IGNORED_NESTED_SENTINEL" in payload:
                             raise RuntimeError("Nested override did not replace its sibling AGENTS.md")
+                    if "Diagnose a difficult reproducible failure or performance regression with a focused feedback loop and evidence." not in payload:
+                        raise RuntimeError("Codex did not discover the installed diagnosis skill")
+                    if profile in ("react", "nextjs") and "Review and improve React or Next.js rendering, data fetching, and bundle performance when relevant to the requested change." not in payload:
+                        raise RuntimeError("Codex did not discover the selected React skill")
+                    if profile == "nestjs" and "Develop and review NestJS modules, dependency injection, API boundaries, and authorization using the project version and conventions." not in payload:
+                        raise RuntimeError("Codex did not discover the selected NestJS skill")
+                    if "Check an authorized diff against acceptance criteria and report actionable findings with evidence." not in payload:
+                        raise RuntimeError("Codex did not advertise the installed verifier agent")
                     positions = [payload.find(value) for value in sentinels]
                     if -1 in positions or positions != sorted(positions):
                         raise RuntimeError("Expected global/project instruction order was not observed")
@@ -115,7 +136,7 @@ multi_agent = false
                 server.shutdown()
                 worker.join(timeout=5)
         version = subprocess.check_output([executable, "--version"], text=True).strip()
-        print(f"Verified instruction discovery with {version}; model behavior was not tested.")
+        print(f"Verified instruction, skill and agent discovery with {version}; model behavior and delegation were not tested.")
 
 
 if __name__ == "__main__":

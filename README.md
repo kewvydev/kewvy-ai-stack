@@ -10,8 +10,10 @@ installation and project initialization. Preview, state, conflicts, updates, and
 rollback are tested in temporary directories. Native Codex instruction discovery
 is checked with a local Responses fixture; model compliance is not tested.
 
-The SDD skill and four role contracts remain prepared content. Native custom
-agents, technology profiles, hooks, MCP connections, and CI/CD are not installed.
+Version 0.3.0-dev adds selectable NestJS, React, Next.js, and Java/Maven Spring Boot
+profiles, three pinned skills, the native verifier, and task/finding records.
+Context7 and GitHub have an explicit configuration profile; authentication and
+real connections remain pending. Hooks, extra memory services, and CI/CD are not installed.
 
 All stack content is maintained in English.
 
@@ -40,6 +42,7 @@ stack.json    Content index and project status
 - [Foundation requirements](specs/00-foundation.md).
 - [Everyday workflow and SDD activation](docs/workflow.md).
 - [Installation, updates, ownership, and recovery](docs/installation.md).
+- [Source research, selections, and limitations](docs/evolution-research.md).
 - [gentle-ai analysis](docs/reference-analysis.md).
 - [Module recommendations](docs/catalog.md).
 - [Open questions and decisions](docs/decisions.md).
@@ -50,13 +53,13 @@ When more definition is needed, the agent proposes SDD, explains why, and
 **waits for your approval before activating it** for that change. SDD defines
 a spec and acceptance criteria, plans the work, implements it, and retains evidence.
 Existing templates remain available in `skills/sdd-workflow/assets/`.
-The `core` profile does not include skills, specialized agents, or MCP by default;
-the available content index is not an installation selection.
+The `core` profile includes diagnosis; the global installation supplies the verifier.
+The content index also lists prepared content that is not automatically installed.
 
 ## Validate and test
 
 ```bash
-cd ~/Dev/ai-engineering-stack
+cd ~/Dev/kewvy-ai-stack
 python3 scripts/validate.py
 python3 -m unittest discover -s tests -v
 python3 scripts/check_codex_loading.py
@@ -81,10 +84,12 @@ Global defaults are `~/.local/share/ai-engineering-stack`, `~/.local/bin`, and
 Read the [installation guide](docs/installation.md) before applying it to your
 personal environment. Development tests do not install into personal configuration
 or Meritum. Project initialization persists state and a user-owned decision record;
-it adds no external memory or application storage.
+it retains incomplete tasks and reusable findings without external memory or application storage.
 
-The next profiles target NestJS, React, Next.js, and Spring Boot. Their versions
-and contents remain unselected. The SDD engine is still undecided.
+Use `ai-stack init /absolute/path --profile nestjs|react|nextjs|spring-boot` to
+select a technology profile. Next.js shares React skills without duplication.
+Java/Maven is the Spring Boot preference; installed versions are inspected rather
+than upgraded automatically. The SDD engine is still undecided.
 
 Design reference: [gentle-ai](https://github.com/Gentleman-Programming/gentle-ai).
 Additional architectural reference: [clawd-harness](https://github.com/orrrrli/clawd-harness).

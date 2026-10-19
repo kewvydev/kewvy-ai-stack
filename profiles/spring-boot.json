@@ -1,0 +1,11 @@
+{
+  "id": "spring-boot",
+  "status": "implemented",
+  "description": "Java with Maven is preferred. Inspect pom.xml, Spring Boot and Java versions; use ./mvnw when available, otherwise mvn. Prefer current stable releases for requested new applications, never upgrade existing applications automatically. Use existing Spring test slices, authorization and API contracts; no Spring Tools MCP dependency is assumed.",
+  "roles": [],
+  "mcp": [],
+  "extends": [
+    "core"
+  ],
+  "skills": []
+}

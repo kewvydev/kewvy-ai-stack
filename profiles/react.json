@@ -1,0 +1,13 @@
+{
+  "id": "react",
+  "status": "implemented",
+  "description": "Inspect React, router and build-tool versions. Reuse component, state and accessibility conventions. Test observable UI behavior and profile demonstrated performance issues.",
+  "roles": [],
+  "mcp": [],
+  "extends": [
+    "core"
+  ],
+  "skills": [
+    "vercel-react-best-practices"
+  ]
+}

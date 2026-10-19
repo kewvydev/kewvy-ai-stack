@@ -1,9 +1,45 @@
 {
-  "status": "candidates-only",
+  "status": "selected-definitions; connections-not-verified",
   "servers": [
-    {"id": "context7", "purpose": "Library documentation", "source": "https://github.com/upstash/context7", "suggestedFor": ["documentation"], "enabled": false},
-    {"id": "github", "purpose": "Repositories, issues, PRs, and Actions", "source": "https://github.com/github/github-mcp-server", "suggestedFor": ["github-projects"], "enabled": false},
-    {"id": "playwright", "purpose": "Browser inspection and interaction", "source": "https://github.com/microsoft/playwright-mcp", "suggestedFor": ["web"], "enabled": false},
-    {"id": "supabase", "purpose": "Supabase project context and tools", "source": "https://supabase.com/docs/guides/ai-tools/mcp", "suggestedFor": ["supabase-projects"], "enabled": false}
+    {
+      "id": "context7",
+      "purpose": "Library documentation",
+      "source": "https://github.com/upstash/context7",
+      "suggestedFor": [
+        "documentation"
+      ],
+      "enabled": false,
+      "selected": true
+    },
+    {
+      "id": "github",
+      "purpose": "Repositories, issues, PRs, and Actions",
+      "source": "https://github.com/github/github-mcp-server",
+      "suggestedFor": [
+        "github-projects"
+      ],
+      "enabled": false,
+      "selected": true
+    },
+    {
+      "id": "playwright",
+      "purpose": "Browser inspection and interaction",
+      "source": "https://github.com/microsoft/playwright-mcp",
+      "suggestedFor": [
+        "web"
+      ],
+      "enabled": false,
+      "selected": false
+    },
+    {
+      "id": "supabase",
+      "purpose": "Supabase project context and tools",
+      "source": "https://supabase.com/docs/guides/ai-tools/mcp",
+      "suggestedFor": [
+        "supabase-projects"
+      ],
+      "enabled": false,
+      "selected": false
+    }
   ]
 }

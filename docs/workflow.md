@@ -60,3 +60,13 @@ because files were created or checks ran. Verify old findings before reusing the
 mark hypotheses, preserve corrections, and retire stale entries. A recorded
 suggestion does not authorize changes to another module. No external capture
 service is required or installed for this workflow.
+
+## Optional project roles
+
+Every profile makes codebase-explorer and test-engineer available under the
+project's `.codex/agents/`. Explorer returns a brief source map without edits;
+test engineer writes assigned behavior/contract/regression tests using existing
+project tools. Use TDD when requested, retaining prior agreement on criteria.
+Neither role is a mandatory stage or authorization for additional delegation.
+Use them on request or under applicable delegation instructions; keep everyday
+work proportional. The global verifier/security-auditor retain their existing roles.

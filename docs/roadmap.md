@@ -52,3 +52,10 @@ project records, and test prior-release updates, recovery and native discovery.
 Skill behavior, real security audits and technical read-only permissions remain
 separate from packaging. Hooks, an SDD execution engine and external memory are
 not introduced by this expansion.
+
+## 0.5.0-dev project-agent increment
+
+Distribute codebase-explorer/test-engineer per project with native adapters, role
+contracts, ownership/conflict protection, update/rollback and discovery checks.
+Keep global native agents unchanged and reuse profile tools. Behavioral evaluations
+of map quality and test engineering remain separate from installation validation.

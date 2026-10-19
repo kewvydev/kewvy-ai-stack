@@ -1,7 +1,7 @@
 {
   "name": "ai-engineering-stack",
-  "version": "0.4.0-dev",
-  "status": "workflow-and-skill-expansion",
+  "version": "0.5.0-dev",
+  "status": "codex-project-agents",
   "methodology": "ODD",
   "sddActivation": "user-approval",
   "firstClient": "codex",
@@ -201,7 +201,9 @@
     "skills/vercel-composition-patterns/rules/state-lift-state.md",
     "skills/web-design-guidelines/SKILL.md",
     "skills/web-design-guidelines/references/upstream.md",
-    "adapters/codex/agents/security-auditor.toml"
+    "adapters/codex/agents/security-auditor.toml",
+    "adapters/codex/agents/codebase-explorer.toml",
+    "adapters/codex/agents/test-engineer.toml"
   ],
   "supportedClients": [],
   "profiles": [
@@ -216,7 +218,9 @@
     "agents/architect.md",
     "agents/implementer.md",
     "agents/verifier.md",
-    "agents/security-auditor.md"
+    "agents/security-auditor.md",
+    "agents/codebase-explorer.md",
+    "agents/test-engineer.md"
   ],
   "skills": [
     "skills/sdd-workflow/SKILL.md",
@@ -262,5 +266,9 @@
     "web-design-guidelines",
     "frontend-design",
     "vercel-composition-patterns"
+  ],
+  "projectAgents": [
+    "adapters/codex/agents/codebase-explorer.toml",
+    "adapters/codex/agents/test-engineer.toml"
   ]
 }

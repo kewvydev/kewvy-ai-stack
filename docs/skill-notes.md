@@ -81,3 +81,13 @@ explicit HTML escaping of repository-derived text. The original entrypoint is
 retained for provenance, not as authority to execute its old report recipe.
 This change reduces the template's execution surface; it is not a behavioral
 proof that a model will always produce safe HTML.
+
+## Project-local exploration and test roles (0.5.0-dev)
+
+`codebase-explorer` and `test-engineer` are native project agents under
+`.codex/agents/`, not additional global skills or global native agents. All profiles
+install both adapter definitions from the package snapshot. Explorer maps existing
+modules/dependencies/conventions and reports file references without edits.
+Test engineer designs/writes assigned behavior/contract/regression tests with the
+configured tools, following TDD when requested. They inherit model and permissions;
+availability does not require delegation or change the SDD approval policy.

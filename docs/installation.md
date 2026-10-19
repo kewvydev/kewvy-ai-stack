@@ -227,3 +227,37 @@ destinations are packaging locations: Codex discovers the default user directory
 or repository `.agents/skills` ancestors, not arbitrary custom directories. The
 native fixture uses a disposable shared repository root to exercise its temporary
 shared skills directory without changing HOME or installing into personal paths.
+
+## Project subagents (0.5.0-dev)
+
+Every `init` profile now installs two project-local definitions:
+
+```text
+.codex/agents/codebase-explorer.toml
+.codex/agents/test-engineer.toml
+```
+
+The first maps existing modules, dependencies, conventions and affected files
+without edits. The second writes behavior/contract/regression tests with the
+project's configured tools; TDD applies when requested. These roles are available
+on demand, not a mandatory pipeline. Their reusable contracts live in agents/;
+the adapter definitions ship in the global package so the installed launcher can
+initialize projects without the source checkout.
+
+Update the global package with `install --dry-run` then `install`, then each
+selected project with `init TARGET --dry-run` then `init TARGET`. Existing profiles
+are retained. No `.codex/config.toml`, model setting, project trust or permissions
+are changed. Existing unrelated agents remain untouched; unowned/edited matching
+files and symlink parents cause conflicts before writes. Rollback uses the same
+managed-file state and preserves user records.
+
+Both roles inherit parent model/permissions, as described in the
+[official custom-agent documentation](https://learn.chatgpt.com/docs/agent-configuration/subagents).
+Explorer's no-edit contract is not a separate read-only sandbox. Start a new
+project session if newly installed agents do not appear. Native discovery does
+not prove mapping quality, test quality, TDD discipline or actual delegation.
+
+Codex loads project agent configuration in a trusted project context. The fixture
+trusts only its temporary repository and disables ambient duplicate skill names
+only in its temporary Codex configuration. The installer does not grant trust
+to real projects or modify their existing client configuration.

@@ -19,5 +19,10 @@ will help another module. Do not turn suggestions into authorized tasks.
 The selected technology profile and skills are listed below. Global guidance
 provides the shared workflow; the verifier checks criteria and security-auditor reviews security-sensitive changes.
 The global installation makes the selected shared skills available across projects.
+Project agents live in `.codex/agents/`: `codebase-explorer` returns a brief map
+without edits; `test-engineer` writes assigned behavior, contract and regression
+tests with the project's existing tools, using TDD when requested. Use these roles
+on request or when applicable instructions authorize delegation; availability does
+not require multiagent work for every change.
 Use SDD only after approval for the current change.
 No hooks or additional memory service are installed.

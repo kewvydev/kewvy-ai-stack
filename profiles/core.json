@@ -3,7 +3,9 @@
   "status": "implemented",
   "description": "Shared ODD workflow; reuse project commands and keep incomplete work and reusable findings local.",
   "roles": [
-    "verifier"
+    "verifier",
+    "codebase-explorer",
+    "test-engineer"
   ],
   "mcp": [],
   "extends": [],

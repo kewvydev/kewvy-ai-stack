@@ -78,9 +78,17 @@ def main():
         require(server["source"].startswith("https://"), f"Invalid source: {server['id']}")
         require(server["enabled"] is False, "The initial catalog does not enable connections")
 
-    for relative in manifest.get("nativeAgents", []):
-        require_file(relative)
-        require(relative in package_files, f"Native agent missing from installation: {relative}")
+    native_names = set()
+    for scope in ("nativeAgents", "projectAgents"):
+        paths = manifest.get(scope, [])
+        require(len(paths) == len(set(paths)), f"Duplicate agents in {scope}")
+        for relative in paths:
+            name = Path(relative).stem
+            require(name in roles, f"Native agent has no role contract: {relative}")
+            require(name not in native_names, f"Duplicate native agent name: {name}")
+            native_names.add(name)
+            require_file(relative)
+            require(relative in package_files, f"Native agent missing from installation: {relative}")
     require_file(manifest["mcpConfiguration"])
     require(manifest["mcpConfiguration"] in package_files, "MCP definitions missing from package")
     profile_ids = set()

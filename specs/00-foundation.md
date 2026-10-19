@@ -1,7 +1,7 @@
 # Stack foundation
 
 Status: content foundation, Codex installer, approved skills/profiles, verifier,
-project records, global skills and security-auditor implemented through 0.4.0-dev.
+project records, global skills and security-auditor implemented through 0.5.0-dev.
 Runtime evidence and limits are recorded in `docs/foundation-verification.md`.
 
 ## Problem
@@ -114,3 +114,15 @@ in docs/decisions.md. It does not activate SDD or additional memory services.
 - AC-23: checks cover global reuse, preservation, conflicts, profile separation,
   update/rollback and native discovery. Report model behavior and real audits
   separately; neither is certified by loading configuration.
+
+## Approved 0.5.0-dev project agents
+
+- AC-24: all project profiles install codebase-explorer and test-engineer as native
+  `.codex/agents/*.toml` definitions; their sources ship in the global snapshot,
+  without installing these two as personal/global agents.
+- AC-25: explorer maps dependencies/conventions/impact without edits; test engineer
+  designs and writes scoped behavior/contract/regression tests using existing tools,
+  with TDD only when requested. Both inherit model and actual session permissions.
+- AC-26: preview, installed-launcher initialization, repeat runs, existing client
+  config/agents, collisions, edits, unsafe paths, previous-release update/rollback
+  and native discovery are checked separately from actual model behavior.

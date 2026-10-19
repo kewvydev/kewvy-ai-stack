@@ -426,6 +426,9 @@ def build(args):
     for name in ("tasks", "findings"):
         key = ".ai-stack/" + name + ".md"
         files[key] = (root / key, "seed", (SOURCE / "templates" / (name + ".md")).read_bytes())
+    for relative in manifest.get("projectAgents", []):
+        key = ".codex/agents/" + Path(relative).name
+        files[key] = (root / key, "file", (SOURCE / relative).read_bytes())
     add_skills(files, root, skills)
     return Installation({"project": root}, "project", manifest["version"], files, profile)
 

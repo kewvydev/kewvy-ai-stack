@@ -94,6 +94,11 @@ memories = false
 hooks = false
 multi_agent = true
 '''
+            config += "\n[projects." + json.dumps(str(base)) + "]\ntrust_level = \"trusted\"\n"
+            # Keep ambient user-global duplicates out of this disposable fixture.
+            for name in json.loads((ROOT / "stack.json").read_text())["globalSkills"]:
+                path = Path.home() / ".agents/skills" / name / "SKILL.md"
+                config += "\n[[skills.config]]\npath = " + json.dumps(str(path)) + "\nenabled = false\n"
             (codex_home / "config.toml").write_text(config)
             environment = {k: v for k, v in os.environ.items() if not k.startswith(("OPENAI_", "CODEX_"))}
             environment["CODEX_HOME"] = str(codex_home)
@@ -138,6 +143,12 @@ multi_agent = true
                             raise RuntimeError("Codex did not discover global skill: " + name)
                     if requested_skill and str(base / ".agents/skills" / requested_skill / "SKILL.md") not in payload:
                         raise RuntimeError("Codex did not load explicitly requested skill: " + requested_skill)
+                    for description in (
+                        "Map modules, dependencies, conventions and affected code in an existing project; return concise file/line references without edits.",
+                        "Design and write behavior, contract and regression tests with existing project tools; use TDD when requested.",
+                    ):
+                        if description not in payload:
+                            raise RuntimeError("Codex did not advertise a project agent: " + description)
                     if "Audit auth flows, untrusted input and pre-merge diffs for critical/high security risks" not in payload:
                         raise RuntimeError("Codex did not advertise the installed security auditor")
                     if "Check an authorized diff against acceptance criteria and report actionable findings with evidence." not in payload:
@@ -146,6 +157,20 @@ multi_agent = true
                     if -1 in positions or positions != sorted(positions):
                         raise RuntimeError("Expected global/project instruction order was not observed")
                     print(f"PASS: Codex discovers instructions, SDD, shared skills and agents ({requested_skill or cwd.name}).")
+                bare = base / "uninitialized"
+                bare.mkdir()
+                start = len(requests)
+                result = subprocess.run([
+                    executable, "--no-daemon", "exec", "--ephemeral", "--json", "--color", "never",
+                    "--sandbox", "read-only", "--cd", str(bare),
+                    "Return the fixture response without calling any tools.",
+                ], env=environment, capture_output=True, text=True, timeout=45)
+                if result.returncode or len(requests) == start:
+                    raise RuntimeError("Uninitialized project scope check did not reach the fixture")
+                payload = json.dumps(requests[start])
+                if "Map modules, dependencies, conventions and affected code in an existing project" in payload or "Design and write behavior, contract and regression tests with existing project tools" in payload:
+                    raise RuntimeError("Project agents leaked into an uninitialized sibling project")
+                print("PASS: project agents are absent from an uninitialized sibling project.")
             finally:
                 server.shutdown()
                 worker.join(timeout=5)

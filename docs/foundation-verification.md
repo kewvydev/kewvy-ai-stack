@@ -201,3 +201,52 @@ auditor delegation and permission enforcement tests, real MCP authentication,
 framework/browser runtime validation, and publication license review for the
 web-design-guidelines directory without a license declaration. These are separate
 from the completed installation and discovery scope.
+
+## Project exploration and test agents — 2026-10-19
+
+Version 0.5.0-dev. The user requested codebase-explorer and test-engineer as
+project-local subagents. Their contracts and native adapters were added without
+changing the global native-agent selection, skills, model settings or permissions.
+
+| Criterion | Executed evidence | Result |
+| --- | --- | --- |
+| AC-24 | All five profiles install both .codex/agents TOML files; installed launcher works after removing its source checkout; neither agent appears in the global native directory | Pass for packaging and scope |
+| AC-25 | TOML parses with name/description/developer_instructions only; role contracts define no-edit mapping and scoped test writing with existing tools/TDD on request | Pass as configuration; behavioral compliance not evaluated |
+| AC-26 | 32 installer tests; real 0.4.0-dev upgrade/rollback; ten native discovery/scope scenarios with Codex CLI 0.162.1 | Pass on current Linux environment |
+
+Executed:
+
+- `python3 scripts/validate.py`: 7 roles, 13 skills, 5 profiles, 4 MCP candidates.
+- `PYTHONPYCACHEPREFIX=/tmp/kewvy-stack-pycache python3 -m unittest discover -s tests -v`: 32 tests passed. New checks cover project-agent ownership,
+  installed-launcher independence, preserving client config/unrelated agents,
+  unowned/edited matching definitions, rollback and .codex symlink parents.
+- `python3 scripts/check_codex_loading.py`: all previous nine scenarios passed
+  with both project-agent descriptions advertised, including nested discovery;
+  the extra uninitialized sibling scenario contains neither project agent.
+- A genuine e83ee9e 0.4.0-dev source/package initialized an existing Next.js
+  fixture with user instructions, client config, an unrelated agent and edited
+  records. Upgrade to 0.5.0-dev, identical reinstall and project/global rollback
+  preserved the expected snapshots. No real project was rolled back.
+- Native TOML parsing, Python AST parsing and `git diff --check` passed. No skill
+  content changed, so this increment did not rerun unchanged skill validators.
+
+The first native attempt did not advertise project agents in an untrusted
+fixture. Trust was added only for its temporary repository, consistent with the
+client's project configuration rules. A subsequent explicit-skill assertion could
+select an ambient user-global duplicate instead of the temporary copy; those
+ambient names are now disabled only in the fixture's temporary configuration.
+The final saved fixture passes; real trust and skill settings are not changed.
+
+Configured and verified in the user's requested setup: the global package and
+`/home/kewvy/Dev/test-ai-stack` now report 0.5.0-dev with zero pending content/state
+changes. The two actual project agent files equal their source adapters. Hash
+comparisons preserved existing global agents/skills, project code/public assets,
+package/lock files, all three user records, client configuration, trust settings
+and unmanaged instruction content. Meritum was not modified.
+
+The native fixture uses a local Responses stub, not a model or real service.
+It verifies discovery and scope, not actual delegation, exploration accuracy,
+test quality, red/green discipline or enforced read-only behavior. These remain
+separate behavioral evaluations, not failed installation criteria. Both roles
+inherit the parent session's actual model and permissions. No SDD activation,
+new testing framework, dependency installation or remote operation was included.

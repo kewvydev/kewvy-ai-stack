@@ -110,3 +110,13 @@ The native security-auditor reports critical/high risks using an explicit OWASP
 checklist, evidence and uncertainty. It inherits the parent's model/permissions
 and does not patch or save memory. The parent retains confirmed patterns and
 unfinished checks in existing local records. See [skills and auditor details](docs/skill-notes.md).
+
+## Project subagents (0.5.0-dev)
+
+All profiles install `codebase-explorer` and `test-engineer` in the project's
+`.codex/agents/`. Explorer returns a concise map with file references and no edits.
+Test engineer designs/writes scoped behavior, contract and regression tests, reuses
+existing profile tools and applies TDD when requested. They inherit parent model
+and permissions and remain available on demand. Update the global package, then
+rerun project initialization; see [installation](docs/installation.md).
+see you soon!!

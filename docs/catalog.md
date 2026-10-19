@@ -9,7 +9,7 @@ Priority reflects usefulness for this personal stack, not a popularity ranking.
 | --- | --- | --- |
 | Lightweight ODD | Understand, explore, implement, and verify proportionately | Everyday flow documented in `docs/workflow.md` |
 | Optional SDD | Define behavior, plan, and evidence per change | Skill and templates; activate only with approval |
-| Agents | Coordinator, architect, implementer, and verifier | Five contracts; native verifier and security-auditor selected |
+| Agents | Coordinator, architect, implementer, and verifier | Seven contracts; global verifier/security-auditor and project codebase-explorer/test-engineer selected |
 | Testing | Behavior, contract, and regression tests | Approved global tdd; selected per change |
 | Debugging | Reproduce, identify the cause, fix, and verify | Approved diagnosis skill packaged and discoverable |
 | Architecture | Boundaries, alternatives, ADRs, and compatible migrations | Approved global improve-codebase-architecture |
@@ -96,3 +96,10 @@ improve-codebase-architecture, handoff, web-design-guidelines, frontend-design a
 vercel-composition-patterns. Existing global names are reused without overwriting.
 The native security-auditor is report-only; the parent retains confirmed patterns
 and unfinished checks locally. See [skill notes](skill-notes.md) for exact scope.
+
+## Project agents — 0.5.0-dev
+
+codebase-explorer and test-engineer are approved for every initialized project
+profile. They are not additional global native agents. Explorer maps and reports;
+test engineer writes assigned tests with existing tools and optional requested TDD.
+Their availability does not require a multiagent workflow for routine changes.

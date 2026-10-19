@@ -178,7 +178,7 @@ class InstallerTests(unittest.TestCase):
         self.install()
         outside = self.base / "outside"
         outside.mkdir()
-        for relative in ("AGENTS.md", ".ai-stack"):
+        for relative in ("AGENTS.md", ".ai-stack", ".codex"):
             with self.subTest(relative=relative):
                 link = self.project / relative
                 link.symlink_to(outside / "missing" if relative == "AGENTS.md" else outside)
@@ -260,6 +260,53 @@ class InstallerTests(unittest.TestCase):
         self.assertEqual({p.name for p in (self.codex / "agents").iterdir()}, {"verifier.toml", "security-auditor.toml"})
         self.assertTrue((self.codex / "stack-development.config.toml").exists())
         self.assertEqual({p.name for p in (self.project / ".agents/skills").iterdir()}, {"diagnosing-bugs", "sdd-workflow"})
+
+    def test_project_agents_work_from_snapshot_and_preserve_client_files(self):
+        self.install()
+        shutil.rmtree(self.source)
+        client = self.project / ".codex"
+        (client / "agents").mkdir(parents=True)
+        config = client / "config.toml"
+        config.write_text('model = "existing-project-model"\n')
+        custom = client / "agents/local-reviewer.toml"
+        custom.write_text('name = "local-reviewer"\n')
+        self.cli("init", self.project, installed=True)
+        for name in ("codebase-explorer", "test-engineer"):
+            relative = ".codex/agents/" + name + ".toml"
+            self.assertEqual((self.project / relative).read_bytes(),
+                             (ROOT / "adapters/codex/agents" / (name + ".toml")).read_bytes())
+            state = json.loads((self.project / ".ai-stack/installation.json").read_text())
+            self.assertIn(relative, state["files"])
+            self.assertFalse((self.codex / "agents" / (name + ".toml")).exists())
+        before = snapshot(self.base)
+        self.cli("init", self.project, installed=True)
+        self.assertEqual(before, snapshot(self.base))
+        self.cli("rollback", self.project, installed=True)
+        self.assertEqual(config.read_text(), 'model = "existing-project-model"\n')
+        self.assertEqual(custom.read_text(), 'name = "local-reviewer"\n')
+        self.assertFalse((client / "agents/codebase-explorer.toml").exists())
+        self.assertFalse((client / "agents/test-engineer.toml").exists())
+        self.assertTrue((self.project / ".ai-stack/tasks.md").exists())
+
+    def test_project_agent_collisions_and_edits_block_all_writes(self):
+        self.install()
+        unowned = self.project / ".codex/agents/codebase-explorer.toml"
+        unowned.parent.mkdir(parents=True)
+        unowned.write_text('name = "user-owned-explorer"\n')
+        before = snapshot(self.base)
+        self.cli("init", self.project, ok=False)
+        self.assertEqual(before, snapshot(self.base))
+        unowned.unlink()
+        self.cli("init", self.project)
+        for name in ("codebase-explorer", "test-engineer"):
+            with self.subTest(agent=name):
+                path = self.project / ".codex/agents" / (name + ".toml")
+                original = path.read_bytes()
+                path.write_bytes(original + b"\n# User customization.\n")
+                before = snapshot(self.base)
+                self.cli("init", self.project, ok=False)
+                self.assertEqual(before, snapshot(self.base))
+                path.write_bytes(original)
 
     def test_global_skills_are_available_without_project_copies(self):
         self.initialize()
@@ -376,6 +423,8 @@ class InstallerTests(unittest.TestCase):
             project.mkdir()
             self.cli("init", project, "--profile", profile)
             self.assertEqual({p.name for p in (project / ".agents/skills").iterdir()}, skills)
+            self.assertEqual({p.name for p in (project / ".codex/agents").iterdir()},
+                             {"codebase-explorer.toml", "test-engineer.toml"})
             before = snapshot(project)
             self.cli("init", project)
             self.assertEqual(before, snapshot(project))

@@ -33,7 +33,7 @@ Decisions from 2026-10-19:
 | AQ-05 | Per-project installation, global, or both? | Per project initially, including existing repositories | Resolved: global stack plus initialization of existing projects |
 | AQ-06 | CLI and which operating systems? | A simple CLI; Linux first if it covers actual use | Python CLI confirmed; Linux is the current test environment; wider OS support pending |
 | AQ-07 | How much autonomy should agents have? | Autonomous local work; external actions follow user authorization | Pending |
-| AQ-08 | Which roles, and when to delegate? | Coordinator, architect, implementer, and verifier on demand | Verifier plus security-auditor approved; security-sensitive and pre-merge review use the report-only auditor; other roles pending |
+| AQ-08 | Which roles, and when to delegate? | Coordinator, architect, implementer, and verifier on demand | Global verifier/security-auditor plus project codebase-explorer/test-engineer approved; security-sensitive and pre-merge review use the report-only auditor; other roles pending |
 | AQ-09 | Standard testing or TDD? What coverage matters? | Behavior- and risk-based tests; TDD when useful | Pending |
 | AQ-10 | GitHub or another provider? Where will projects deploy? | CI checks before deployment automation | Pending |
 | AQ-11 | Which MCP integrations first? | Documentation; GitHub if used; others by profile | Initial increment: none. Expansion: Context7 and GitHub selected; isolated configuration profile, authentication pending; existing connections preserved |
@@ -139,3 +139,36 @@ inherit parent permissions. A report-only instruction is not a technical sandbox
 use a parent read-only session for filesystem enforcement. OWASP Top 10:2025 is
 the checklist source, with confirmed critical/high findings distinguished from
 uncertain high-impact concerns. No new model provider, memory service or hooks.
+
+## Project exploration and test agents — 2026-10-19
+
+The user requested two additional subagents installed inside projects:
+`codebase-explorer` maps modules, dependencies, conventions and impacted files
+without editing code; `test-engineer` designs and writes behavior, contract and
+regression tests using existing profile tools, with TDD when requested.
+
+Expected behavior before implementation:
+
+- Every profile's project initialization installs both native TOML files under
+  `.codex/agents/`; they are not added to personal/global native agent directories.
+- The global package carries their adapter sources so the installed launcher
+  works without access to the original checkout. Reusable contracts stay in agents/.
+- Existing client configuration, other agents, user records and application code
+  are preserved. Dry-run, conflicts, repeat initialization and rollback use the
+  existing ownership protections. Modified or unowned agent files are not replaced.
+- Both inherit the parent model and permissions. Explorer is report-only by
+  instruction, not a separate filesystem sandbox. Test engineer changes only the
+  assigned tests/fixtures/helpers unless its assignment also authorizes other code.
+- Agent availability does not mandate delegation, a new test framework, universal
+  TDD or SDD. TDD follows the user's requested scope and existing agreed criteria.
+- Verify all-profile installation, scope separation, preservation, conflicts,
+  prior-release update/rollback and native Codex discovery separately from behavior.
+
+This adds the two approved native roles to AQ-08; other roles remain pending.
+It does not resolve universal testing policy, budgets or an SDD engine.
+
+Native discovery verification uses a trusted temporary repository. Codex did not
+advertise project-local agents before that fixture trust entry was added. Existing
+user-global skills with duplicate names are disabled only in the fixture config
+so explicit skill checks resolve its temporary copies. Real trust, permissions,
+models and existing configuration are preserved by the installer.

@@ -1,0 +1,305 @@
+"""Exercise installation boundaries in disposable projects and Codex homes."""
+
+import contextlib
+import importlib.util
+import io
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+import tempfile
+import unittest
+from unittest.mock import patch
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def snapshot(root):
+    return {str(p.relative_to(root)): p.read_bytes() for p in root.rglob("*") if p.is_file()}
+
+
+class InstallerTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix="ai-stack-test-")
+        self.addCleanup(self.temp.cleanup)
+        self.base = Path(self.temp.name)
+        self.source = self.base / "source"
+        manifest = json.loads((ROOT / "stack.json").read_text())
+        for name in manifest["installationFiles"]:
+            target = self.source / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / name, target)
+        self.prefix = self.base / "package"
+        self.bin_dir = self.base / "bin with spaces"
+        self.codex = self.base / "codex"
+        self.project = self.base / "project"
+        self.project.mkdir()
+        self.options = ["--prefix", str(self.prefix), "--bin-dir", str(self.bin_dir), "--codex-home", str(self.codex)]
+
+    def cli(self, *args, ok=True, installed=False):
+        executable = [str(self.bin_dir / "ai-stack")] if installed else [sys.executable, str(self.source / "tools/stack.py")]
+        result = subprocess.run(executable + list(map(str, args)) + self.options, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0 if ok else 1, result.stdout + result.stderr)
+        return result
+
+    def install(self):
+        self.cli("install")
+
+    def initialize(self):
+        self.install()
+        self.cli("init", self.project)
+
+    def next_version(self):
+        path = self.source / "stack.json"
+        manifest = json.loads(path.read_text())
+        manifest["version"] = "0.3.0-test"
+        path.write_text(json.dumps(manifest, indent=2) + "\n")
+        for name in ("global-rules.md", "AGENTS.md"):
+            path = self.source / "templates" / name
+            path.write_text(path.read_text() + "\nAdditional release guidance.\n")
+
+    def test_dry_run_writes_nothing(self):
+        before = snapshot(self.base)
+        self.cli("install", "--dry-run")
+        self.assertEqual(before, snapshot(self.base))
+        self.assertFalse(self.codex.exists())
+        self.assertFalse(self.prefix.exists())
+
+    def test_global_reinstall_and_installed_launcher(self):
+        self.install()
+        before = snapshot(self.base)
+        result = self.cli("install", installed=True)
+        self.assertIn("0 content file(s), 0 state file(s)", result.stdout)
+        self.assertEqual(before, snapshot(self.base))
+        self.assertTrue(os.access(self.bin_dir / "ai-stack", os.X_OK))
+        self.cli("status", "--global", installed=True)
+
+    def test_project_dry_run_and_reinstall_preserve_user_content(self):
+        self.install()
+        instructions = self.project / "AGENTS.md"
+        instructions.write_bytes(b"Personal rules without a final newline")
+        before = snapshot(self.base)
+        self.cli("init", self.project, "--dry-run")
+        self.assertEqual(before, snapshot(self.base))
+        self.cli("init", self.project, installed=True)
+        instructions.write_bytes(b"New local rules\n" + instructions.read_bytes())
+        decisions = self.project / ".ai-stack/decisions.md"
+        decisions.write_text(decisions.read_text() + "\nDEC-01: Keep SQLite for this project.\n")
+        before = snapshot(self.base)
+        self.cli("init", self.project)
+        self.assertEqual(before, snapshot(self.base))
+        self.assertIn(b"Personal rules without a final newline", instructions.read_bytes())
+
+    def test_global_personal_rules_and_config_are_preserved(self):
+        self.codex.mkdir()
+        (self.codex / "AGENTS.md").write_bytes(b"Personal rules\r\n<!-- BEGIN:other -->\r\nOther rules\r\n")
+        (self.codex / "config.toml").write_text('model = "existing-choice"\n')
+        self.install()
+        self.assertTrue((self.codex / "AGENTS.md").read_bytes().startswith(b"Personal rules\r\n<!-- BEGIN:other -->\r\nOther rules\r\n"))
+        self.assertEqual((self.codex / "config.toml").read_text(), 'model = "existing-choice"\n')
+
+    def test_requires_global_core_and_existing_project(self):
+        before = snapshot(self.base)
+        self.cli("init", self.project, ok=False)
+        self.assertEqual(before, snapshot(self.base))
+        self.install()
+        self.cli("init", self.base / "missing", ok=False)
+        self.assertFalse((self.base / "missing").exists())
+
+    def test_unowned_package_file_blocks_all_writes(self):
+        self.prefix.mkdir()
+        (self.prefix / "stack.json").write_text("User file")
+        before = snapshot(self.base)
+        self.cli("install", ok=False)
+        self.assertEqual(before, snapshot(self.base))
+
+    def test_edited_managed_content_blocks_update(self):
+        self.install()
+        path = self.codex / "AGENTS.md"
+        path.write_text(path.read_text().replace("lightweight ODD", "custom workflow"))
+        self.next_version()
+        before = snapshot(self.base)
+        self.cli("install", ok=False)
+        self.assertEqual(before, snapshot(self.base))
+
+    def test_update_and_global_rollback_between_versions(self):
+        self.install()
+        before_package = snapshot(self.prefix)
+        before_package.pop("backup.json")
+        before_rules = (self.codex / "AGENTS.md").read_bytes()
+        self.next_version()
+        self.cli("install", "--dry-run")
+        self.assertEqual(before_package, {k: v for k, v in snapshot(self.prefix).items() if k != "backup.json"})
+        self.install()
+        self.assertEqual(json.loads((self.prefix / "installation.json").read_text())["version"], "0.3.0-test")
+        self.cli("rollback", "--global")
+        self.assertEqual(before_package, snapshot(self.prefix))
+        self.assertEqual(before_rules, (self.codex / "AGENTS.md").read_bytes())
+
+    def test_project_update_rollback_preserves_decisions_and_outside_edits(self):
+        self.initialize()
+        decisions = self.project / ".ai-stack/decisions.md"
+        decisions.write_text("# Existing project decisions\n\nDEC-01: approved by user.\n")
+        old_instructions = (self.project / "AGENTS.md").read_bytes()
+        self.next_version()
+        self.install()
+        self.cli("init", self.project)
+        path = self.project / "AGENTS.md"
+        path.write_bytes(b"New personal instructions\n\n" + path.read_bytes())
+        self.cli("rollback", self.project)
+        self.assertEqual(path.read_bytes(), b"New personal instructions\n\n" + old_instructions)
+        self.assertEqual(decisions.read_text(), "# Existing project decisions\n\nDEC-01: approved by user.\n")
+
+    def test_rollback_first_install_keeps_decision_record(self):
+        self.install()
+        instructions = self.project / "AGENTS.md"
+        instructions.write_bytes(b"Original instructions")
+        self.cli("init", self.project)
+        self.cli("rollback", self.project)
+        self.assertEqual(instructions.read_bytes(), b"Original instructions")
+        self.assertFalse((self.project / ".ai-stack/installation.json").exists())
+        self.assertTrue((self.project / ".ai-stack/decisions.md").exists())
+
+    def test_rollback_dry_run_and_modified_file_conflict(self):
+        self.install()
+        before = snapshot(self.base)
+        self.cli("rollback", "--global", "--dry-run")
+        self.assertEqual(before, snapshot(self.base))
+        (self.prefix / "templates/global-rules.md").write_text("Local customization")
+        before = snapshot(self.base)
+        self.cli("rollback", "--global", ok=False)
+        self.assertEqual(before, snapshot(self.base))
+
+    def test_symlink_destinations_and_parents_are_rejected(self):
+        self.install()
+        outside = self.base / "outside"
+        outside.mkdir()
+        for relative in ("AGENTS.md", ".ai-stack"):
+            with self.subTest(relative=relative):
+                link = self.project / relative
+                link.symlink_to(outside / "missing" if relative == "AGENTS.md" else outside)
+                self.cli("init", self.project, ok=False)
+                self.assertEqual(snapshot(outside), {})
+                link.unlink()
+        alias = self.base / "alias"
+        alias.symlink_to(self.project)
+        self.cli("init", alias, ok=False)
+
+    def test_overrides_and_malformed_markers_are_rejected(self):
+        self.codex.mkdir()
+        override = self.codex / "AGENTS.override.md"
+        override.write_text("Overrides global guidance")
+        self.cli("install", ok=False)
+        override.unlink()
+        self.install()
+        override = self.project / "AGENTS.override.md"
+        override.write_text("Overrides project guidance")
+        self.cli("init", self.project, ok=False)
+        override.unlink()
+        (self.project / "AGENTS.md").write_bytes(b"<!-- BEGIN:ai-engineering-stack -->\nIncomplete")
+        self.cli("init", self.project, ok=False)
+
+    def test_unsafe_roots_and_mismatched_state_are_rejected(self):
+        self.install()
+        self.cli("init", self.source, ok=False)
+        self.cli("init", Path.home(), ok=False)
+        state_path = self.prefix / "installation.json"
+        state = json.loads(state_path.read_text())
+        state["roots"]["bin"] = str(self.base / "different-bin")
+        state_path.write_text(json.dumps(state))
+        self.cli("install", ok=False)
+        for malformed in ([], None, {"files": []}, {"files": {"package/stack.json": []}}):
+            state_path.write_text(json.dumps(malformed))
+            before = snapshot(self.base)
+            result = self.cli("install", ok=False)
+            self.assertNotIn("Traceback", result.stderr)
+            self.assertEqual(before, snapshot(self.base))
+
+    def test_backup_cannot_select_an_arbitrary_path(self):
+        self.install()
+        backup_path = self.prefix / "backup.json"
+        backup = json.loads(backup_path.read_text())
+        backup["changes"][0]["key"] = "package/../../outside"
+        backup_path.write_text(json.dumps(backup))
+        before = snapshot(self.base)
+        self.cli("rollback", "--global", ok=False)
+        self.assertEqual(before, snapshot(self.base))
+
+    def test_write_failure_restores_previous_files_and_state(self):
+        self.install()
+        spec = importlib.util.spec_from_file_location("installer", self.source / "tools/stack.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        args = type("Args", (), {"command": "init", "global_scope": False, "target": self.project, "codex_home": self.codex})()
+        installation = module.build(args)
+        original = module.atomic_write
+        failed = False
+
+        def fail_once(path, data, executable=False):
+            nonlocal failed
+            if path.name == "decisions.md" and not failed:
+                failed = True
+                raise OSError("Synthetic disk error")
+            return original(path, data, executable)
+
+        before = snapshot(self.base)
+        with patch.object(module, "atomic_write", fail_once), contextlib.redirect_stdout(io.StringIO()):
+            with self.assertRaisesRegex(OSError, "Synthetic disk error"):
+                installation.apply()
+        self.assertEqual(before, snapshot(self.base))
+
+    def test_core_does_not_install_optional_modules(self):
+        self.initialize()
+        for root in (self.codex, self.project):
+            self.assertFalse((root / "config.toml").exists())
+            self.assertFalse((root / "hooks.json").exists())
+            self.assertFalse((root / "agents").exists())
+            self.assertFalse((root / ".agents").exists())
+
+    def test_interrupted_update_can_be_rolled_back(self):
+        self.install()
+        expected = {k: v for k, v in snapshot(self.prefix).items() if k != "backup.json"}
+        self.next_version()
+        spec = importlib.util.spec_from_file_location("interrupted_installer", self.source / "tools/stack.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        args = type("Args", (), {"command": "install", "global_scope": False, "prefix": self.prefix,
+                                "bin_dir": self.bin_dir, "codex_home": self.codex})()
+        original = module.atomic_write
+
+        def interrupt(path, data, executable=False):
+            if path == self.prefix / "templates/global-rules.md":
+                raise KeyboardInterrupt("Synthetic interruption")
+            return original(path, data, executable)
+
+        with patch.object(module, "atomic_write", interrupt), contextlib.redirect_stdout(io.StringIO()):
+            with self.assertRaises(KeyboardInterrupt):
+                module.build(args).apply()
+        self.cli("install", ok=False)
+        self.cli("rollback", "--global")
+        self.assertEqual(expected, snapshot(self.prefix))
+
+    def test_unowned_metadata_and_unsafe_manifest_paths_are_preserved(self):
+        self.prefix.mkdir()
+        backup = self.prefix / "backup.json"
+        backup.write_text("{}")
+        before = snapshot(self.base)
+        self.cli("install", ok=False)
+        self.assertEqual(before, snapshot(self.base))
+        backup.unlink()
+        manifest_path = self.source / "stack.json"
+        original = manifest_path.read_text()
+        for bad_path in (str(self.source / "stack.json"), "../outside", "tools/../stack.json", "installation.json"):
+            with self.subTest(path=bad_path):
+                manifest = json.loads(original)
+                manifest["installationFiles"].append(bad_path)
+                manifest_path.write_text(json.dumps(manifest))
+                before = snapshot(self.base)
+                self.cli("install", ok=False)
+                self.assertEqual(before, snapshot(self.base))
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1,0 +1,35 @@
+{
+  "name": "ai-engineering-stack",
+  "version": "0.2.0-dev",
+  "status": "codex-core-installer",
+  "methodology": "ODD",
+  "sddActivation": "user-approval",
+  "firstClient": "codex",
+  "language": "en",
+  "installer": "tools/stack.py",
+  "installationFiles": [
+    "tools/stack.py",
+    "stack.json",
+    "adapters/codex/adapter.json",
+    "profiles/core.json",
+    "templates/global-rules.md",
+    "templates/AGENTS.md",
+    "templates/decisions.md"
+  ],
+  "supportedClients": [],
+  "profiles": ["profiles/core.json"],
+  "roles": ["agents/coordinator.md", "agents/architect.md", "agents/implementer.md", "agents/verifier.md"],
+  "skills": ["skills/sdd-workflow/SKILL.md"],
+  "templates": [
+    "templates/AGENTS.md",
+    "templates/global-rules.md",
+    "templates/decisions.md",
+    "templates/project.md",
+    "templates/adr.md",
+    "skills/sdd-workflow/assets/spec.md",
+    "skills/sdd-workflow/assets/plan.md",
+    "skills/sdd-workflow/assets/tasks.md",
+    "skills/sdd-workflow/assets/verification.md"
+  ],
+  "mcpCatalog": "mcp/catalog.json"
+}

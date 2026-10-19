@@ -1,0 +1,49 @@
+# Everyday workflow and optional SDD
+
+Decisions confirmed on 2026-10-19. First target client: Codex.
+This document defines behavior. The Codex core installer distributes this guidance;
+it does not technically enforce approval or prove model compliance.
+
+## Everyday work: lightweight ODD
+
+Understand the request, explore the necessary context, resolve material questions,
+implement the authorized change, and verify its result. Keep work proportional
+and communicate evidence and pending checks.
+
+Expected behavior can be clear from the conversation and diff.
+Do not require a spec, a separate plan, a set of templates, or multiple agents for
+every adjustment. When work needs continuity, reuse the project's record with the
+minimum information needed to resume.
+
+Project initialization seeds `.ai-stack/decisions.md` when absent. Link an existing
+register rather than duplicating it. Record only confirmed decisions with source,
+scope, and corrections. The CLI preserves this user-owned file through updates
+and manual rollback; it does not extract conversation memory or store application data.
+
+## When to propose SDD
+
+Suggested considerations: unclear behavior, decisions affecting several parts,
+risk that calls for explicit criteria, or a need to retain a verifiable agreement
+across sessions. Do not decide by file count.
+
+The agent explains why SDD would help and what definition or evidence it would
+add to the change. **Wait for explicit user approval before activating SDD.**
+Approval applies to that change; it does not make SDD the default for other
+changes. If approval already exists in the conversation for that scope, do not
+ask again.
+
+While waiting, explore and complete independent, authorized work.
+Do not create the set of SDD artifacts or implement unresolved decisions.
+If the user declines SDD, continue in lightweight mode only where requirements
+are clear; keep blocking questions explicit.
+
+## After SDD is approved
+
+Use the `sdd-workflow` skill: define behavior and acceptance criteria, plan what is
+needed, implement, verify, and synchronize the spec. Adapt artifacts to the change;
+reuse existing specs and any SDD engine the project already uses. Approval to use
+SDD does not automatically approve unresolved product decisions or external actions.
+
+When finished, report the outcome and retain useful evidence. The next change
+starts in lightweight mode unless explicit authorization defines another scope.
+The SDD engine and approvals within its stages are still undecided.

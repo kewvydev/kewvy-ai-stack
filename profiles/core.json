@@ -1,0 +1,8 @@
+{
+  "id": "core",
+  "status": "implemented",
+  "description": "Global ODD guidance and project decisions for Codex. Skills, agents, hooks, and MCP are not selected.",
+  "roles": [],
+  "skills": [],
+  "mcp": []
+}

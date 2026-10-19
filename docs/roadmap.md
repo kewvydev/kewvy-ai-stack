@@ -43,3 +43,12 @@ Selected skill packaging, four technology profiles, task/finding records, native
 verifier, and an explicit Context7/GitHub profile are implemented. Native discovery
 is checked; remote authentication, framework builds, model behavior, hooks, extra
 memory services, publication and deployment remain separate future work.
+
+## 0.4.0-dev expansion
+
+Package SDD in every profile; add the nine selected shared global skills and the
+report-only native security-auditor. Preserve existing global skill ownership and
+project records, and test prior-release updates, recovery and native discovery.
+Skill behavior, real security audits and technical read-only permissions remain
+separate from packaging. Hooks, an SDD execution engine and external memory are
+not introduced by this expansion.

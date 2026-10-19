@@ -17,4 +17,10 @@ Keep incomplete acceptance criteria open with evidence, blockers, and a next act
 Retain confirmed findings useful to other modules; label hypotheses and verify
 old findings before reuse. Update or retire stale findings with evidence.
 Do not implement cross-module suggestions solely because a finding was recorded.
+Use security-auditor for authentication, untrusted-input changes and pre-merge PR
+review when native delegation is available and authorized by this instruction.
+Give it the actual diff and scope; it reports without patching. If delegation is
+unavailable, state that an independent audit did not run. Recheck its findings;
+record confirmed reusable patterns and unfinished checks in the local registers.
+Do not treat agent availability, a checklist or an empty report as proof of security.
 Write stack content, code comments, documentation, and CLI messages in English.

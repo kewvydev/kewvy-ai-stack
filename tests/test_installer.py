@@ -36,7 +36,9 @@ class InstallerTests(unittest.TestCase):
         self.codex = self.base / "codex"
         self.project = self.base / "project"
         self.project.mkdir()
-        self.options = ["--prefix", str(self.prefix), "--bin-dir", str(self.bin_dir), "--codex-home", str(self.codex)]
+        self.user_skills = self.base / "user-skills"
+        self.options = ["--prefix", str(self.prefix), "--bin-dir", str(self.bin_dir), "--codex-home", str(self.codex),
+                        "--skills-dir", str(self.user_skills)]
 
     def cli(self, *args, ok=True, installed=False):
         executable = [str(self.bin_dir / "ai-stack")] if installed else [sys.executable, str(self.source / "tools/stack.py")]
@@ -255,9 +257,68 @@ class InstallerTests(unittest.TestCase):
         for root in (self.codex, self.project):
             self.assertFalse((root / "config.toml").exists())
             self.assertFalse((root / "hooks.json").exists())
-        self.assertEqual([p.name for p in (self.codex / "agents").iterdir()], ["verifier.toml"])
+        self.assertEqual({p.name for p in (self.codex / "agents").iterdir()}, {"verifier.toml", "security-auditor.toml"})
         self.assertTrue((self.codex / "stack-development.config.toml").exists())
-        self.assertEqual([p.name for p in (self.project / ".agents/skills").iterdir()], ["diagnosing-bugs"])
+        self.assertEqual({p.name for p in (self.project / ".agents/skills").iterdir()}, {"diagnosing-bugs", "sdd-workflow"})
+
+    def test_global_skills_are_available_without_project_copies(self):
+        self.initialize()
+        manifest = json.loads((self.source / "stack.json").read_text())
+        for name in manifest["globalSkills"]:
+            self.assertEqual(snapshot(self.source / "skills" / name), snapshot(self.user_skills / name))
+            self.assertFalse((self.project / ".agents/skills" / name).exists())
+
+    def test_existing_global_skills_are_reused_and_survive_rollback(self):
+        path = self.user_skills / "ponytail/SKILL.md"
+        path.parent.mkdir(parents=True)
+        path.write_text("---\nname: ponytail\ndescription: Existing user version.\n---\nPersonal guidance.\n")
+        original = snapshot(self.user_skills)
+        result = self.cli("install")
+        self.assertIn("externally managed", result.stdout)
+        self.assertEqual(path.read_bytes(), original["ponytail/SKILL.md"])
+        state = json.loads((self.prefix / "installation.json").read_text())
+        self.assertEqual(state["selection"]["externalSkills"]["ponytail"]["path"], str(path))
+        self.assertFalse(any(key.startswith("skills/ponytail/") for key in state["files"]))
+        before = snapshot(self.base)
+        self.cli("install")
+        self.assertEqual(before, snapshot(self.base))
+        self.cli("rollback", "--global")
+        self.assertEqual(snapshot(self.user_skills), original)
+
+    def test_unowned_native_global_skill_blocks_all_writes(self):
+        path = self.user_skills / "tdd/SKILL.md"
+        path.parent.mkdir(parents=True)
+        path.write_text("Existing unowned skill")
+        before = snapshot(self.base)
+        self.cli("install", ok=False)
+        self.assertEqual(before, snapshot(self.base))
+
+    def test_legacy_global_roots_can_update_without_losing_recovery(self):
+        self.install()
+        state_path = self.prefix / "installation.json"
+        state = json.loads(state_path.read_text())
+        state["roots"].pop("skills")
+        state["files"] = {key: value for key, value in state["files"].items() if not key.startswith("skills/")}
+        for path in self.user_skills.iterdir():
+            shutil.rmtree(path)
+        state["selection"].pop("externalSkills", None)
+        legacy = json.dumps(state).encode()
+        state_path.write_bytes(legacy)
+        (self.prefix / "backup.json").unlink()
+        self.install()
+        self.assertIn("skills", json.loads(state_path.read_text())["roots"])
+        self.cli("rollback", "--global")
+        self.assertEqual(state_path.read_bytes(), legacy)
+        self.assertEqual(snapshot(self.user_skills), {})
+
+    def test_sdd_resources_are_available_from_installed_package_without_scaffolding(self):
+        self.install()
+        self.cli("init", self.project, installed=True)
+        source = self.source / "skills/sdd-workflow"
+        target = self.project / ".agents/skills/sdd-workflow"
+        self.assertEqual(snapshot(source), snapshot(target))
+        self.assertEqual(len(list((target / "assets").glob("*.md"))), 4)
+        self.assertFalse((self.project / "specs").exists())
 
     def test_interrupted_update_can_be_rolled_back(self):
         self.install()
@@ -267,7 +328,7 @@ class InstallerTests(unittest.TestCase):
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         args = type("Args", (), {"command": "install", "global_scope": False, "prefix": self.prefix,
-                                "bin_dir": self.bin_dir, "codex_home": self.codex})()
+                                "bin_dir": self.bin_dir, "codex_home": self.codex, "skills_dir": self.user_skills})()
         original = module.atomic_write
 
         def interrupt(path, data, executable=False):
@@ -305,10 +366,10 @@ class InstallerTests(unittest.TestCase):
     def test_framework_profiles_are_separate_and_next_reuses_react(self):
         self.install()
         expected = {
-            "nestjs": {"diagnosing-bugs", "nestjs-best-practices"},
-            "react": {"diagnosing-bugs", "vercel-react-best-practices"},
-            "nextjs": {"diagnosing-bugs", "vercel-react-best-practices"},
-            "spring-boot": {"diagnosing-bugs"},
+            "nestjs": {"diagnosing-bugs", "sdd-workflow", "nestjs-best-practices"},
+            "react": {"diagnosing-bugs", "sdd-workflow", "vercel-react-best-practices"},
+            "nextjs": {"diagnosing-bugs", "sdd-workflow", "vercel-react-best-practices"},
+            "spring-boot": {"diagnosing-bugs", "sdd-workflow"},
         }
         for profile, skills in expected.items():
             project = self.base / profile

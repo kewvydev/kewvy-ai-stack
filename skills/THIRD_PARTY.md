@@ -1,12 +1,23 @@
 # Selected third-party skills
 
-Only the three approved skill directories are distributed, at revisions in
-`provenance.json`. No collection installer or upstream executable is run.
-The original entrypoints are retained in each `references/upstream.md`;
-short adapted entrypoints preserve project conventions and version boundaries.
-React's duplicate compiled AGENTS.md, README, and metadata were omitted.
+Selected directories and their required resources only; revisions, source paths,
+local snapshot hashes, adaptations and license evidence are in `provenance.json`.
+No upstream collection installer or skill helper is executed as part of stack
+installation. Original entrypoints are retained in `references/upstream.md` when
+adapted. Duplicate compiled guides and unused metadata are omitted.
 
-All three upstreams declare MIT. NestJS and React declare it in their skill
-frontmatter; Matt Pocock provides a repository LICENSE, preserved with the skill.
-Upstream reference text remains attribution-bearing content, not stack-wide policy.
-Skills are not evaluated proof of functional compatibility or authorization.
+The original three sources declare MIT. Added Matt Pocock skills retain the
+repository MIT LICENSE. Ponytail declares MIT in its installed frontmatter.
+The user's frontend-design includes its full Apache-2.0 LICENSE.txt. Composition
+patterns declares MIT in its frontmatter. web-design-guidelines has no license
+declaration in the selected directory; its terms need review before publication.
+
+Codex entrypoints preserve scoped authorization, existing project decisions and
+version checks. Explicit-only upstream policies are retained for grill-me, handoff
+and improve-codebase-architecture. Supporting design/interview references are not
+additional installed skills and do not authorize delegation or external actions.
+See docs/skill-notes.md in the source checkout for dependency and compatibility choices.
+
+Snapshots inside the global package are a distribution library. Reused user-global
+skills stay externally managed and may differ from those snapshots. Format checks
+and native discovery are not behavioral or security certification.

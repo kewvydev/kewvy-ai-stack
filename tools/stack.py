@@ -104,12 +104,13 @@ def project_root(path):
 
 
 class Installation:
-    def __init__(self, roots, scope, version, files, profile="core"):
+    def __init__(self, roots, scope, version, files, profile="core", external_skills=None):
         self.roots = roots
         self.scope = scope
         self.version = version
         self.files = files
         self.profile = profile
+        self.external_skills = external_skills or {}
         base = roots["package"] if scope == "global" else roots["project"] / ".ai-stack"
         self.state_path = base / "installation.json"
         self.backup_path = base / "backup.json"
@@ -119,15 +120,24 @@ class Installation:
             raise Conflict(f"Unknown managed path: {key}")
         return self.files[key][0]
 
+    def roots_match(self, recorded):
+        expected = {k: str(v) for k, v in self.roots.items()}
+        return recorded == expected or (
+            self.scope == "global" and isinstance(recorded, dict)
+            and recorded == {k: v for k, v in expected.items() if k != "skills"}
+        )
+
     def validate_state(self, state):
         if (not isinstance(state, dict) or not isinstance(state.get("files"), dict)
                 or not isinstance(state.get("version"), str)
                 or state.get("schemaVersion") != 1 or state.get("scope") != self.scope
-                or state.get("roots") != {k: str(v) for k, v in self.roots.items()}
+                or not self.roots_match(state.get("roots"))
                 or not isinstance(state.get("selection"), dict)
                 or state["selection"].get("client") != "codex"
                 or state["selection"].get("profile") not in {Path(x).stem for x in json.loads((SOURCE / "stack.json").read_text())["profiles"]}):
             raise Conflict("Installation state does not match this scope, location, or schema")
+        if self.scope == "global" and "skills" not in state["roots"] and any(key.startswith("skills/") for key in state["files"]):
+            raise Conflict("Global skill ownership requires a recorded skills root")
         for key, entry in state["files"].items():
             self.path(key)
             if not isinstance(entry, dict) or entry.get("kind") != self.files[key][1] or entry["kind"] == "seed":
@@ -145,7 +155,7 @@ class Installation:
             backup = json.loads(old_backup)
             if (state is None or not isinstance(backup, dict)
                     or backup.get("schemaVersion") != 1 or backup.get("scope") != self.scope
-                    or backup.get("roots") != {k: str(v) for k, v in self.roots.items()}
+                    or not self.roots_match(backup.get("roots"))
                     or decode(backup["afterState"]) != previous):
                 raise Conflict("Existing backup is unowned or records an interrupted operation; preserved")
         changes = []
@@ -170,7 +180,8 @@ class Installation:
         next_state = json_bytes({
             "schemaVersion": 1, "scope": self.scope, "version": self.version,
             "roots": {k: str(v) for k, v in self.roots.items()},
-            "selection": {"client": "codex", "profile": self.profile}, "files": owned,
+            "selection": {"client": "codex", "profile": self.profile,
+                          **({"externalSkills": self.external_skills} if self.scope == "global" else {})}, "files": owned,
         })
         return previous, next_state, changes
 
@@ -216,7 +227,7 @@ class Installation:
             raise Conflict("No installation backup is available")
         backup = json.loads(raw)
         if (not isinstance(backup, dict) or backup.get("schemaVersion") != 1 or backup.get("scope") != self.scope
-                or backup.get("roots") != {k: str(v) for k, v in self.roots.items()}):
+                or not self.roots_match(backup.get("roots"))):
             raise Conflict("Backup does not belong to this installation")
         after_state = decode(backup["afterState"])
         self.validate_state(json.loads(after_state))
@@ -317,7 +328,7 @@ def declared_versions(root, profile):
     return "Declared dependency ranges: " + "; ".join(name + "=" + str(dependencies.get(name, "not declared")).replace("\n", " ").replace("\r", " ") for name in names) + ". Inspect installed versions; do not upgrade automatically."
 
 
-def add_skills(files, root, skills):
+def add_skills(files, root, skills, destination=".agents/skills", key_prefix=""):
     for name in skills:
         source = SOURCE / "skills" / name
         if not (source / "SKILL.md").is_file():
@@ -326,8 +337,8 @@ def add_skills(files, root, skills):
             if path.is_symlink():
                 raise Conflict(f"Symlink skill source: {path}")
             if path.is_file():
-                relative = Path(".agents/skills") / name / path.relative_to(source)
-                files[str(relative)] = (root / relative, "file", path.read_bytes())
+                relative = Path(destination) / name / path.relative_to(source)
+                files[key_prefix + str(relative)] = (root / relative, "file", path.read_bytes())
 
 
 def build(args):
@@ -337,7 +348,10 @@ def build(args):
     if read(codex / "AGENTS.override.md"):
         raise Conflict("Non-empty global AGENTS.override.md would hide stack guidance")
     if args.command == "install" or args.global_scope:
-        roots = {"package": safe_path(args.prefix), "bin": safe_path(args.bin_dir), "codex": codex}
+        default_codex = safe_path(os.environ.get("CODEX_HOME", "~/.codex"))
+        default_skills = Path.home() / ".agents/skills" if codex == default_codex else codex.parent / ".agents/skills"
+        roots = {"package": safe_path(args.prefix), "bin": safe_path(args.bin_dir), "codex": codex,
+                 "skills": safe_path(getattr(args, "skills_dir", None) or default_skills)}
         for name, root in roots.items():
             self_install = name == "package" and root == SOURCE and read(root / "installation.json") is not None
             if not self_install and (root in (Path("/"), Path.home()) or root == SOURCE or root in SOURCE.parents or SOURCE in root.parents):
@@ -360,10 +374,36 @@ def build(args):
         files["bin/ai-stack"] = (roots["bin"] / "ai-stack", "file", wrapper)
         rules = (SOURCE / adapter["globalInstructions"]).read_bytes().rstrip()
         files["codex/AGENTS.md"] = (codex / "AGENTS.md", "block", BEGIN + b"\n" + rules + b"\n" + END)
-        files["codex/agents/verifier.toml"] = (codex / "agents/verifier.toml", "file", (SOURCE / manifest["nativeAgents"][0]).read_bytes())
+        for relative in manifest["nativeAgents"]:
+            name = Path(relative).name
+            files["codex/agents/" + name] = (codex / "agents" / name, "file", (SOURCE / relative).read_bytes())
+        old_state = read(roots["package"] / "installation.json")
+        old_owned = {}
+        if old_state is not None:
+            previous = json.loads(old_state)
+            if not isinstance(previous, dict) or not isinstance(previous.get("files"), dict):
+                raise Conflict("Invalid existing global installation state")
+            old_owned = previous["files"]
+        external_skills = {}
+        user_skills = roots["skills"]
+        known_skills = {Path(path).parent.name for path in manifest["skills"]}
+        for name in manifest.get("globalSkills", []):
+            if name not in known_skills:
+                raise Conflict(f"Unknown global skill: {name}")
+            prefix = "skills/" + name + "/"
+            external = user_skills / name / "SKILL.md"
+            if not any(key.startswith(prefix) for key in old_owned):
+                existing = read(external)
+                if existing is not None:
+                    if not re.search(rb"^name:\s*[\"']?" + re.escape(name.encode()) + rb"[\"']?\s*$", existing, re.M):
+                        raise Conflict(f"Existing global skill has mismatched metadata: {external}")
+                    external_skills[name] = {"path": str(external), "sha256": digest(existing)}
+                    print(f"Reuse existing global skill (externally managed): {external}")
+                    continue
+            add_skills(files, user_skills, [name], destination="", key_prefix="skills/")
         files["codex/stack-development.config.toml"] = (codex / "stack-development.config.toml", "file", (SOURCE / manifest["mcpConfiguration"]).read_bytes())
         print("MCP definitions are available through --profile stack-development; authentication and connection checks are separate.")
-        return Installation(roots, "global", manifest["version"], files)
+        return Installation(roots, "global", manifest["version"], files, external_skills=external_skills)
     if args.target is None:
         raise Conflict("A project target is required unless --global is selected")
     root = project_root(args.target)
@@ -401,6 +441,8 @@ def main():
         command.add_argument("--prefix", default="~/.local/share/ai-engineering-stack")
         command.add_argument("--bin-dir", default="~/.local/bin")
         command.add_argument("--codex-home", default=os.environ.get("CODEX_HOME", "~/.codex"))
+        command.add_argument("--skills-dir",
+                             help="Global skills destination; reuse existing names without ownership")
         command.add_argument("--dry-run", action="store_true")
         if name != "install":
             command.add_argument("--profile", help="Project technology profile; defaults to the recorded profile or core")

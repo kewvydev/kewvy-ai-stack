@@ -1,7 +1,7 @@
 # Stack foundation
 
 Status: content foundation, Codex installer, approved skills/profiles, verifier,
-and project records implemented through 0.3.0-dev.
+project records, global skills and security-auditor implemented through 0.4.0-dev.
 Runtime evidence and limits are recorded in `docs/foundation-verification.md`.
 
 ## Problem
@@ -36,7 +36,8 @@ repeats work and can produce inconsistent configurations.
 - AC-04: recommendations distinguished from confirmed choices.
 - AC-05: integrity validation for the index, profiles, and MCP catalog.
 - AC-06: ODD is the everyday flow in instructions, templates, and the manifest.
-- AC-07: SDD activation requires explicit approval and is not included by default in `core`.
+- AC-07: SDD activation requires explicit approval. The 0.4.0-dev user request
+  supersedes the original packaging exclusion: `core` now distributes the skill.
 - AC-08: Codex is the first target client without claiming compatibility before testing.
 - AC-09: documentation, instructions, skills, templates and their placeholders,
   configuration descriptions, code comments, and tool messages are in English.
@@ -99,3 +100,17 @@ in docs/decisions.md. It does not activate SDD or additional memory services.
   recognized by Codex; authentication and actual model delegation remain separate.
 - AC-19: a genuine 0.2.0-dev installation can update and roll back in temporary
   locations. Hooks and all unselected integrations remain uninstalled.
+
+## Approved 0.4.0-dev expansion
+
+- AC-20: every project profile distributes sdd-workflow and its four templates;
+  SDD still needs approval per change and does not scaffold specs at install time.
+- AC-21: nine requested skills are available through global installation with
+  pinned upstream or hashed local provenance and necessary references. Reuse
+  existing user-global names without overwriting, duplication or ownership.
+- AC-22: the native security-auditor inherits the Codex model, reports without
+  patching or memory writes, checks all OWASP categories and distinguishes confirmed
+  critical/high findings from uncertain concerns. The parent maintains local records.
+- AC-23: checks cover global reuse, preservation, conflicts, profile separation,
+  update/rollback and native discovery. Report model behavior and real audits
+  separately; neither is certified by loading configuration.

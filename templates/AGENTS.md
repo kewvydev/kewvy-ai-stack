@@ -17,5 +17,7 @@ those user-owned records when a task remains incomplete or a durable finding
 will help another module. Do not turn suggestions into authorized tasks.
 
 The selected technology profile and skills are listed below. Global guidance
-provides the shared workflow; the optional verifier performs independent review.
+provides the shared workflow; the verifier checks criteria and security-auditor reviews security-sensitive changes.
+The global installation makes the selected shared skills available across projects.
+Use SDD only after approval for the current change.
 No hooks or additional memory service are installed.

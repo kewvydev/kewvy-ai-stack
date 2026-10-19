@@ -24,9 +24,9 @@ workflow guidance and local project context have separate canonical templates.
 
 ```text
 agents/       Reusable role contracts
-skills/       Distributable skills; currently sdd-workflow
+skills/       SDD, framework and selected global skills with provenance
 templates/    Global guidance, project context, and decision templates
-profiles/     Module selection; currently core
+profiles/     Shared core and separate technology selections
 mcp/          Candidate integration catalog
 adapters/     Codex core mapping and contract for future adapters
 specs/        Requirements for the stack itself
@@ -53,7 +53,8 @@ When more definition is needed, the agent proposes SDD, explains why, and
 **waits for your approval before activating it** for that change. SDD defines
 a spec and acceptance criteria, plans the work, implements it, and retains evidence.
 Existing templates remain available in `skills/sdd-workflow/assets/`.
-The `core` profile includes diagnosis; the global installation supplies the verifier.
+The `core` profile includes diagnosis and the approval-gated SDD skill; the global
+installation supplies the verifier.
 The content index also lists prepared content that is not automatically installed.
 
 ## Validate and test
@@ -94,3 +95,18 @@ than upgraded automatically. The SDD engine is still undecided.
 Design reference: [gentle-ai](https://github.com/Gentleman-Programming/gentle-ai).
 Additional architectural reference: [clawd-harness](https://github.com/orrrrli/clawd-harness).
 This implementation uses original content and includes neither reference's code or assets.
+
+## Approved workflow and global skills (0.4.0-dev)
+
+Every profile now installs `sdd-workflow` and its four templates. Availability
+does not approve using SDD for a change. Global installation supplies ponytail,
+grill-me, tdd, diagnose, improve-codebase-architecture, handoff,
+web-design-guidelines, frontend-design and vercel-composition-patterns. Existing
+user-global names are reused without ownership or overwriting. These global
+skills are available to projects without copying them into every repository.
+Framework skills remain separated by profile.
+
+The native security-auditor reports critical/high risks using an explicit OWASP
+checklist, evidence and uncertainty. It inherits the parent's model/permissions
+and does not patch or save memory. The parent retains confirmed patterns and
+unfinished checks in existing local records. See [skills and auditor details](docs/skill-notes.md).

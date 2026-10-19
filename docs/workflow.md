@@ -37,6 +37,9 @@ Do not create the set of SDD artifacts or implement unresolved decisions.
 If the user declines SDD, continue in lightweight mode only where requirements
 are clear; keep blocking questions explicit.
 
+The shared profile installs `sdd-workflow` and its templates so every technology
+profile can discover it. Installation is availability, not approval to activate SDD.
+
 ## After SDD is approved
 
 Use the `sdd-workflow` skill: define behavior and acceptance criteria, plan what is

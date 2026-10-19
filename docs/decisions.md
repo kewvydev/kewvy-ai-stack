@@ -33,7 +33,7 @@ Decisions from 2026-10-19:
 | AQ-05 | Per-project installation, global, or both? | Per project initially, including existing repositories | Resolved: global stack plus initialization of existing projects |
 | AQ-06 | CLI and which operating systems? | A simple CLI; Linux first if it covers actual use | Python CLI confirmed; Linux is the current test environment; wider OS support pending |
 | AQ-07 | How much autonomy should agents have? | Autonomous local work; external actions follow user authorization | Pending |
-| AQ-08 | Which roles, and when to delegate? | Coordinator, architect, implementer, and verifier on demand | Verifier first, on demand; other native roles pending |
+| AQ-08 | Which roles, and when to delegate? | Coordinator, architect, implementer, and verifier on demand | Verifier plus security-auditor approved; security-sensitive and pre-merge review use the report-only auditor; other roles pending |
 | AQ-09 | Standard testing or TDD? What coverage matters? | Behavior- and risk-based tests; TDD when useful | Pending |
 | AQ-10 | GitHub or another provider? Where will projects deploy? | CI checks before deployment automation | Pending |
 | AQ-11 | Which MCP integrations first? | Documentation; GitHub if used; others by profile | Initial increment: none. Expansion: Context7 and GitHub selected; isolated configuration profile, authentication pending; existing connections preserved |
@@ -85,3 +85,57 @@ its profile's skills. The verifier and an explicit MCP configuration profile are
 installed into the selected Codex home. Task/finding records are user-owned seeds.
 Authentication, native model compliance and framework runtime checks remain
 separate evidence. See evolution-research.md and foundation-verification.md.
+
+## Workflow skill and requested catalog expansion — 2026-10-19
+
+The user explicitly requested installation of `sdd-workflow`, incorporation of
+nine named existing global skills, and a `security-auditor` based on their supplied
+contract. Availability of SDD now belongs to the shared profile; activation still
+requires approval for each change. This supersedes AC-07's packaging exclusion.
+
+Expected behavior before implementation:
+
+- Package SDD and all four templates; initialize it in every project profile.
+- Updating an installed project preserves framework content, local instructions,
+  decisions, tasks, and findings. Repeat installation writes nothing.
+- Import the user's actual skill versions with provenance and license evidence.
+- Adapt security auditing to supported Codex capabilities, report only, with
+  explicit trust-boundary checks, evidence and unresolved risks kept distinct.
+- Validate packaging, conflict handling, updates, rollback and native discovery;
+  do not equate discovery with model compliance or a completed security audit.
+
+Pending answers: locations of seven skills, global versus per-profile distribution,
+and the Codex/local-record adaptation of the supplied Opus/Engram agent. Continue
+independent SDD work while those choices remain open.
+
+The user answered the pending questions in this conversation:
+
+- Search skills.sh for missing skills and use the actual upstream sources.
+- All nine requested additions are global stack skills; SDD remains available
+  through every project profile. Installation does not activate every workflow.
+- Adapt security-auditor to Codex model inheritance and existing local records.
+  The report-only auditor returns proposed entries; the parent records them.
+- Reuse existing user-global ponytail/frontend-design instead of installing
+  duplicates; preserve their owners and content. The stack retains snapshots.
+
+The global installer checks the destination selected by `--skills-dir` (default `~/.agents/skills`) for
+matching names before installing a new global skill. Reused entrypoint paths and
+hashes are recorded as external dependencies, never as owned files. They may
+differ from the stack snapshot and remain updated by their original manager.
+Other selected global skills are managed under the selected global skills
+directory. Existing stack-owned copies stay owned on subsequent operations.
+
+Source review found grill-me is a wrapper for grilling and diagnose was renamed
+to diagnosing-bugs. Include the interview reference under grill-me and retain
+diagnose as a compatibility entrypoint, reusing project diagnosing-bugs when present.
+No additional discoverable skills or mandatory subagents are introduced to satisfy
+upstream references. Preserve explicit-only invocation for grill-me, handoff and
+improve-codebase-architecture using their native Codex policy metadata. TDD remains
+selectable for a change; it does not resolve AQ-09 as a universal testing mandate.
+
+The supplied Claude frontmatter is adapted rather than copied: Opus, color, Bash/
+Read tool grants and Engram calls are not Codex agent settings. Native agents
+inherit parent permissions. A report-only instruction is not a technical sandbox;
+use a parent read-only session for filesystem enforcement. OWASP Top 10:2025 is
+the checklist source, with confirmed critical/high findings distinguished from
+uncertain high-impact concerns. No new model provider, memory service or hooks.

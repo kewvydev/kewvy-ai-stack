@@ -39,7 +39,8 @@ ai-stack status --global
 ```
 
 Profiles: `core`, `nestjs`, `react`, `nextjs`, and `spring-boot`. Use `init TARGET
---profile NAME`; later calls reuse the recorded profile. Each profile adds its
+--profile NAME`; later calls reuse the recorded profile. Each profile includes `sdd-workflow` with its four templates; SDD still requires
+approval per change. Profiles add their
 skills under `.agents/skills/` and managed context in `AGENTS.md`. Next.js inherits
 React without a duplicate copy. Global installation also writes the native verifier
 and `stack-development.config.toml` under the selected Codex home.
@@ -182,3 +183,47 @@ adds approved files while preserving existing hashes and user-owned records.
 Task completion and finding corrections are behavior guided by global/project
 instructions, not inferred or technically enforced by the CLI. See the research
 and verification records for exact scope.
+
+## Workflow and global skills (0.4.0-dev)
+
+`install` adds the nine approved global skills under `~/.agents/skills` by default, plus security-auditor under `agents/`. Before owning a global
+skill, it checks the destination selected by `--skills-dir` (default `~/.agents/skills`) and reuses a matching
+existing skill without overwriting it. The state records its path and entrypoint
+hash as an external dependency. Reused versions stay managed by their original
+installer; stack updates/rollback do not modify them. The package keeps snapshots
+for machines without those skills. Repeat custom lookup paths for later operations.
+
+`init` includes sdd-workflow and four templates in every profile. The shared global
+skills are inherited rather than copied into each project. Merely installing the
+skill does not activate SDD; approval still applies per change. Update the global
+package with `install --dry-run` then `install`; update each selected existing
+project with `init TARGET --dry-run` then `init TARGET`.
+
+Fish setup uses `set STACK_SOURCE "/absolute/path/to/stack"` and
+`set NEXT_PROJECT "/absolute/path/to/project"`. Then:
+
+```fish
+python3 "$STACK_SOURCE/tools/stack.py" install --dry-run
+python3 "$STACK_SOURCE/tools/stack.py" install
+python3 "$STACK_SOURCE/tools/stack.py" init "$NEXT_PROJECT" --profile nextjs --dry-run
+python3 "$STACK_SOURCE/tools/stack.py" init "$NEXT_PROJECT" --profile nextjs
+python3 "$STACK_SOURCE/tools/stack.py" status "$NEXT_PROJECT"
+```
+
+Start a fresh session if new agents or instructions do not appear. To explicitly
+use the three opt-in workflows, ask for `$grill-me`, `$handoff` or
+`$improve-codebase-architecture`. See [skill notes](skill-notes.md) for provenance,
+agent permissions and limits. No real security audit is performed by installation.
+
+The global skills directory is a fourth recorded installation root. An existing
+0.3.0-dev state without this root can update and roll back. New states must retain
+the root when they own global skills. Reusing a skill leaves that whole directory
+externally managed; only its entrypoint path/hash is observed.
+
+For an isolated install, select a separate `--codex-home`; skills default to its
+sibling `.agents/skills` rather than your personal directory. You can set
+`--skills-dir` explicitly, and must repeat it for updates/rollback. Custom skills
+destinations are packaging locations: Codex discovers the default user directory
+or repository `.agents/skills` ancestors, not arbitrary custom directories. The
+native fixture uses a disposable shared repository root to exercise its temporary
+shared skills directory without changing HOME or installing into personal paths.

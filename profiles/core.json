@@ -8,6 +8,7 @@
   "mcp": [],
   "extends": [],
   "skills": [
-    "diagnosing-bugs"
+    "diagnosing-bugs",
+    "sdd-workflow"
   ]
 }

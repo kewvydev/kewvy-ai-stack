@@ -9,10 +9,10 @@ Priority reflects usefulness for this personal stack, not a popularity ranking.
 | --- | --- | --- |
 | Lightweight ODD | Understand, explore, implement, and verify proportionately | Everyday flow documented in `docs/workflow.md` |
 | Optional SDD | Define behavior, plan, and evidence per change | Skill and templates; activate only with approval |
-| Agents | Coordinator, architect, implementer, and verifier | Four contracts; native verifier selected and discoverable |
-| Testing | Behavior, contract, and regression tests | Proposed skill |
+| Agents | Coordinator, architect, implementer, and verifier | Five contracts; native verifier and security-auditor selected |
+| Testing | Behavior, contract, and regression tests | Approved global tdd; selected per change |
 | Debugging | Reproduce, identify the cause, fix, and verify | Approved diagnosis skill packaged and discoverable |
-| Architecture | Boundaries, alternatives, ADRs, and compatible migrations | Proposed skill |
+| Architecture | Boundaries, alternatives, ADRs, and compatible migrations | Approved global improve-codebase-architecture |
 | Code review | Actionable findings with evidence and severity | Proposed skill |
 | CI/CD | Reproducible checks and pipeline diagnosis | Proposed skill |
 
@@ -87,3 +87,12 @@ four technology profiles, verifier first, local tasks/findings, and Context7/Git
 through an explicit native profile. The earlier no-integration selection describes
 0.2.0-dev. Playwright, Supabase, hooks, and additional memory remain unselected.
 See [source research](evolution-research.md) and [installation](installation.md).
+
+## Approved 0.4.0-dev selection
+
+SDD is now packaged in every project profile, with activation still approval-gated.
+Nine additional skills are globally available: ponytail, grill-me, tdd, diagnose,
+improve-codebase-architecture, handoff, web-design-guidelines, frontend-design and
+vercel-composition-patterns. Existing global names are reused without overwriting.
+The native security-auditor is report-only; the parent retains confirmed patterns
+and unfinished checks locally. See [skill notes](skill-notes.md) for exact scope.

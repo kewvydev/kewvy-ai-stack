@@ -61,6 +61,15 @@ def main():
         require(name not in skills, f"Duplicate skill: {name}")
         skills.add(name)
 
+    global_skills = manifest.get("globalSkills", [])
+    require(len(global_skills) == len(set(global_skills)), "Duplicate global skills")
+    require(set(global_skills).issubset(skills), "Unknown global skills")
+    for relative in manifest["skills"]:
+        for path in (ROOT / relative).parent.rglob("*"):
+            require(not path.is_symlink(), f"Symlink in skill package: {path}")
+            if path.is_file():
+                require(str(path.relative_to(ROOT)) in package_files, f"Skill resource missing from package: {path}")
+
     require_file(manifest["mcpCatalog"])
     servers = read_json(manifest["mcpCatalog"])["servers"]
     server_ids = {server["id"] for server in servers}

@@ -22,5 +22,95 @@
     "license": "MIT",
     "licenseEvidence": "upstream repository LICENSE",
     "adaptation": "Concise Codex entrypoint; original guidance retained in references/upstream.md; selected skill directory only."
+  },
+  {
+    "skill": "ponytail",
+    "source": "https://github.com/dietrichgebert/ponytail",
+    "revision": "local-snapshot",
+    "sourceFolderHash": "db8acd3ce9e04ef4a5d42bbd90924b6d0a488318",
+    "sourceFilesSha256": {
+      "SKILL.md": "ba68ff26239c3c3b05b2a9a47ee0d9a6b93a69639a2555ec87a5d44bffaf2f0c"
+    },
+    "license": "MIT",
+    "licenseEvidence": "local skill frontmatter",
+    "adaptation": "User-installed local snapshot; original content retained. Ponytail entrypoint metadata normalized for Agent Skills."
+  },
+  {
+    "skill": "frontend-design",
+    "source": "https://github.com/anthropics/skills",
+    "revision": "local-snapshot",
+    "sourceFolderHash": "d79e2a5bb4df4a386c2adcdd9ab8709bba28c3f6",
+    "sourceFilesSha256": {
+      "LICENSE.txt": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+      "SKILL.md": "d91970639e9f5c37682ac7ab60094d35f1c7c1f38d731bd56396563aee10c1d3"
+    },
+    "license": "Apache-2.0",
+    "licenseEvidence": "retained LICENSE.txt",
+    "adaptation": "User-installed local snapshot; original content retained. Ponytail entrypoint metadata normalized for Agent Skills."
+  },
+  {
+    "skill": "grill-me",
+    "source": "https://github.com/mattpocock/skills",
+    "revision": "49dd158d1076134a641b33efb035946536778336",
+    "sourcePath": "skills/productivity/grill-me",
+    "license": "MIT",
+    "licenseEvidence": "retained repository LICENSE",
+    "adaptation": "Codex entrypoint with local records and authorization boundaries; original entrypoint and required references retained. Original explicit-only policies preserved."
+  },
+  {
+    "skill": "tdd",
+    "source": "https://github.com/mattpocock/skills",
+    "revision": "49dd158d1076134a641b33efb035946536778336",
+    "sourcePath": "skills/engineering/tdd",
+    "license": "MIT",
+    "licenseEvidence": "retained repository LICENSE",
+    "adaptation": "Codex entrypoint with local records and authorization boundaries; original entrypoint and required references retained. Original explicit-only policies preserved."
+  },
+  {
+    "skill": "improve-codebase-architecture",
+    "source": "https://github.com/mattpocock/skills",
+    "revision": "49dd158d1076134a641b33efb035946536778336",
+    "sourcePath": "skills/engineering/improve-codebase-architecture",
+    "license": "MIT",
+    "licenseEvidence": "retained repository LICENSE",
+    "adaptation": "Codex entrypoint with local records and authorization boundaries; original entrypoint and required references retained. Original explicit-only policies preserved. HTML report scaffold replaced with static inline CSS, CSP and explicit escaping rules; upstream executable CDN/Mermaid recipe is not shipped as the offered scaffold."
+  },
+  {
+    "skill": "handoff",
+    "source": "https://github.com/mattpocock/skills",
+    "revision": "49dd158d1076134a641b33efb035946536778336",
+    "sourcePath": "skills/productivity/handoff",
+    "license": "MIT",
+    "licenseEvidence": "retained repository LICENSE",
+    "adaptation": "Codex entrypoint with local records and authorization boundaries; original entrypoint and required references retained. Original explicit-only policies preserved."
+  },
+  {
+    "skill": "diagnose",
+    "source": "https://github.com/mattpocock/skills",
+    "revision": "49dd158d1076134a641b33efb035946536778336",
+    "sourcePath": "skills/engineering/diagnosing-bugs",
+    "aliasOf": "diagnosing-bugs",
+    "renameCommit": "221ffca96736afefdc08ca7cf0b3965e9ea83f41",
+    "license": "MIT",
+    "licenseEvidence": "retained repository LICENSE",
+    "adaptation": "Requested legacy name retained as a Codex compatibility entrypoint; reuses project diagnosing-bugs or bundled fallback."
+  },
+  {
+    "skill": "web-design-guidelines",
+    "source": "https://github.com/vercel-labs/agent-skills",
+    "revision": "063bee94c3f4df8453406c830b0a7df0f2860278",
+    "sourcePath": "skills/web-design-guidelines",
+    "license": "not declared in selected upstream directory",
+    "licenseEvidence": "No license claim added; publication requires license review.",
+    "adaptation": "Concise Codex entrypoint; original guidance and relevant rules retained; no automatic external installer or CDN execution."
+  },
+  {
+    "skill": "vercel-composition-patterns",
+    "source": "https://github.com/vercel-labs/agent-skills",
+    "revision": "063bee94c3f4df8453406c830b0a7df0f2860278",
+    "sourcePath": "skills/composition-patterns",
+    "license": "MIT",
+    "licenseEvidence": "upstream frontmatter",
+    "adaptation": "Concise Codex entrypoint; original guidance and relevant rules retained; no automatic external installer or CDN execution."
   }
 ]

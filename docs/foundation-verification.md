@@ -124,3 +124,80 @@ The host's existing Supabase connection was inspected as configuration only:
 enabled, project scoped, auth unknown and no read_only=true parameter. It was left
 unchanged. No personal install, Meritum change, external authentication, deployment,
 new storage layer, or hook activation was performed.
+
+## Global skills, SDD availability and security-auditor — 2026-10-19
+
+Version 0.4.0-dev. The user approved all nine named additions as global skills,
+searching skills.sh for missing sources, reusing the existing ponytail/frontend-
+design installations, and adapting the auditor to Codex with project-local records.
+They explicitly requested installing SDD in the existing Next.js test project.
+
+| Criterion | Executed evidence | Result |
+| --- | --- | --- |
+| AC-20 | All five profile selections package sdd-workflow and four assets; installed launcher uses the snapshot; installation creates no specs directory | Pass for packaging; approval behavior remains unevaluated |
+| AC-21 | Nine global selections; pinned Matt Pocock/Vercel sources and hashed local versions; 13 skill validator passes; global reuse and ownership tests | Pass for packaging/format; reused user versions remain external |
+| AC-22 | Native TOML discovered in real CLI requests; contract uses all ten OWASP categories, evidence and separate uncertainty, no model override or Engram; independent review followed the contract | Pass for configuration and this scoped review; native custom-agent delegation/model compliance not tested |
+| AC-23 | 30 installer tests; genuine f57afa0 0.3.0-dev upgrade/reinstall/project+global rollback with reused skills; nine native loading scenarios | Pass on current Linux/CLI environment |
+
+Executed checks:
+
+- `python3 scripts/validate.py`: 5 roles, 13 skills, 5 profiles, 4 MCP candidates.
+- `PYTHONPYCACHEPREFIX=/tmp/kewvy-stack-pycache python3 -m unittest discover -s tests -v`: 30 tests passed.
+- Agent Skills quick_validate.py: all 13 source skills passed; the architecture
+  skill passed again after the report scaffold correction.
+- `python3 scripts/check_codex_loading.py`: core, nested override, NestJS, React,
+  Next.js, Spring Boot, explicit grill-me, handoff and architecture loading passed
+  using codex-cli 0.162.1 and a local Responses fixture, without credentials/model.
+- Global skill fixtures live in a disposable repository ancestor, not in personal
+  paths. Actual user-global implicit skill and project SDD discovery was additionally
+  checked through offline `codex debug prompt-input` with a temporary Codex home.
+  That command renders input, not full agent/tool metadata or explicit skill expansion;
+  those checks use the live CLI fixture and installed-file equality instead.
+- `git diff --check` and Bash syntax checking of the optional diagnosis helper passed.
+  The helper was not run interactively.
+
+The actual requested global install and `/home/kewvy/Dev/test-ai-stack` update
+were applied and report 0.4.0-dev with zero pending content/state changes. Hash
+comparisons confirmed preservation of the pre-existing ponytail/frontend-design
+files, all three project registers, package/lock files, personal config.toml, existing
+MCP profile and unmanaged instruction blocks. Meritum was not modified.
+
+### Independent security review and correction
+
+A separate read-only subagent reviewed the actual diff against f57afa0, including
+untracked skills and the native agent contract. It found no confirmed critical/high
+vulnerability. It flagged an uncertain high-impact concern in the retained upstream
+HTML report scaffold: unpinned third-party CDN scripts and Mermaid loose security
+could expose private report content if copied and executed. No exploit/browser
+execution was demonstrated. The offered scaffold was replaced with static inline
+CSS, restrictive CSP and explicit escaping rules, without external assets/scripts.
+The reviewer re-read the correction and closed that concern at the instruction/
+scaffold level. Static HTML parsing found no executable tags, event handlers, embeds
+or external URL attributes. The two global reuse/copy tests passed again afterward.
+The hardened content was applied to the managed global skill and matches its source.
+
+This review followed the auditor contract through the available collaboration tool;
+it is not evidence of the installed native role being selected and executing via
+Codex's custom-agent runtime. No app-wide security audit, generated report behavior,
+model adherence or browser execution was verified. The source checkout has no
+.ai-stack task/finding registers; source decisions, roadmap and this verification
+record retain the evidence and remaining limitations. No confirmed reusable
+critical/high vulnerability required a local sec/<slug> finding.
+
+### Failures corrected during development
+
+The skill validator caught a YAML colon in diagnose's description; it was corrected.
+The first global path under the Codex home was not the supported user-global layout;
+it was replaced with ~/.agents/skills and safe isolated defaults. Native requests
+also abbreviate skill paths through root aliases, so the fixture normalizes those
+aliases before checking discovery. The interruption test was corrected to use its
+explicit skills root. All corresponding final checks pass. A supplemental offline
+probe incorrectly expected agent metadata/explicit expansion from prompt-input;
+its claims were narrowed to the catalog it actually renders. No real model or
+service authentication was needed for these checks.
+
+Pending: behavioral evaluations on representative application changes, native
+auditor delegation and permission enforcement tests, real MCP authentication,
+framework/browser runtime validation, and publication license review for the
+web-design-guidelines directory without a license declaration. These are separate
+from the completed installation and discovery scope.

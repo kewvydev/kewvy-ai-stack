@@ -250,3 +250,49 @@ test quality, red/green discipline or enforced read-only behavior. These remain
 separate behavioral evaluations, not failed installation criteria. Both roles
 inherit the parent session's actual model and permissions. No SDD activation,
 new testing framework, dependency installation or remote operation was included.
+
+## Scoped routing correction — 0.6.0-dev, 2026-10-19
+
+Cause confirmed by read-only inspection: Meritum had no local stack installation,
+but personal Codex instructions mandated auth/untrusted-input/pre-merge security
+review globally. Six global leaf skills were implicitly discoverable, including
+UI guidance. The recent Meritum chat also requested UI and then M01 client
+integration; it ended at a usage limit. No per-cause token attribution is available.
+Meritum's own implementation decision rules are intentionally unchanged.
+
+Changes configured: project-local ODD/records, optional global catalog, three task
+category entrypoints, nine specialized skills omitted from implicit discovery,
+and explicitly requested custom-agent delegation/review. The nine leaf skills
+remain accessible by direct invocation or by reading the relevant category link.
+External skill bodies remain user-managed; invocation metadata has separate
+stack ownership with normal conflict and rollback protection.
+
+Executed and verified:
+
+- Content/reference validation passed: 7 roles, 16 skills, 5 profiles, 4 MCP candidates.
+- All 16 skill entrypoints passed the Agent Skills quick validator.
+- All 33 installer tests passed, including partial ownership of external skill
+  policy, unchanged original bodies, repeat-install/rollback and unowned-policy
+  conflicts that block all writes.
+- Codex CLI 0.162.1 with a local Responses fixture passed 15 positive discovery
+  cases (six profile/override cases and nine explicit leaf requests) and one
+  uninitialized-project negative case. Three categories are advertised; other
+  leaf paths are absent unless explicitly requested. The uninitialized sibling
+  has no project agents or project ODD instructions. MCP definitions still parse;
+  connections/authentication were not exercised. Initial loopback startup was
+  denied by the execution sandbox; the same isolated check passed with permission.
+- A genuine be0223e 0.5.0-dev checkout upgraded to 0.6.0-dev in temporary roots.
+  Repeat operations produced zero changes; project/global rollback restored
+  snapshots, including external skill bodies and their former policy absence.
+- Actual global installation and /home/kewvy/Dev/test-ai-stack were updated after
+  dry-run and now report 0.6.0-dev with zero pending content/state changes.
+  Hash/byte comparisons preserved personal Codex configuration, Meritum instructions
+  and absence of local installation, both reused skill bodies and their original
+  resources, test project application files and all three user-owned records.
+- Python/TOML parsing and git diff --check passed.
+
+No model behavioral evaluation, actual delegation, real login implementation,
+security audit or measured token reduction ran. Native discovery confirms context
+assembly, not semantic category choice or compliance. New sessions avoid retaining
+old instruction history. No Meritum code, rules, model/effort, trust configuration,
+MCP authentication, hooks, external services or remote repository state changed.

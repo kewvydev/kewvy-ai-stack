@@ -1,7 +1,7 @@
 # Stack foundation
 
 Status: content foundation, Codex installer, approved skills/profiles, verifier,
-project records, global skills and security-auditor implemented through 0.5.0-dev.
+project records, global skills and security-auditor implemented through 0.6.0-dev.
 Runtime evidence and limits are recorded in `docs/foundation-verification.md`.
 
 ## Problem
@@ -107,7 +107,8 @@ in docs/decisions.md. It does not activate SDD or additional memory services.
   SDD still needs approval per change and does not scaffold specs at install time.
 - AC-21: nine requested skills are available through global installation with
   pinned upstream or hashed local provenance and necessary references. Reuse
-  existing user-global names without overwriting, duplication or ownership.
+  existing user-global skill bodies without replacement, duplication or ownership;
+  0.6 permits a separately owned invocation policy, preserving unowned conflicts.
 - AC-22: the native security-auditor inherits the Codex model, reports without
   patching or memory writes, checks all OWASP categories and distinguishes confirmed
   critical/high findings from uncertain concerns. The parent maintains local records.
@@ -126,3 +127,16 @@ in docs/decisions.md. It does not activate SDD or additional memory services.
 - AC-26: preview, installed-launcher initialization, repeat runs, existing client
   config/agents, collisions, edits, unsafe paths, previous-release update/rollback
   and native discovery are checked separately from actual model behavior.
+
+## Approved 0.6.0-dev scope correction
+
+- AC-27: engineering, UI and productivity entrypoints select only task-relevant
+  specialized guidance; all nine leaf skills remain explicitly usable and are
+  excluded from default implicit discovery.
+- AC-28: global guidance provides availability without imposing project ODD,
+  records or mandatory audits on uninitialized projects. Meritum rules are unchanged.
+- AC-29: initialized ODD defaults to one agent, requested scope and focused checks;
+  custom-agent delegation/review is explicitly requested. Preserve SDD approval.
+- AC-30: reused external skill bodies are preserved; policy metadata has separate
+  conflict-safe ownership, repeat-install and rollback semantics. Verify actual
+  Codex discovery separately from model decisions, correctness and token savings.

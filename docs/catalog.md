@@ -103,3 +103,12 @@ codebase-explorer and test-engineer are approved for every initialized project
 profile. They are not additional global native agents. Explorer maps and reports;
 test engineer writes assigned tests with existing tools and optional requested TDD.
 Their availability does not require a multiagent workflow for routine changes.
+
+## Task categories — 0.6.0-dev
+
+The nine global skills are grouped in [skills/catalog.json](../skills/catalog.json)
+under engineering, UI and productivity. Three short entrypoints are automatically
+discoverable; they read only the leaf needed for the current step. Leaf skills
+remain explicitly invocable. Agent availability does not trigger delegation;
+custom agents require an explicitly requested assignment or independent review.
+ODD/records belong to initialized projects, preserving other projects' rules.

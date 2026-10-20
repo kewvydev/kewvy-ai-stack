@@ -17,3 +17,6 @@ Do not change production behavior solely to make a test pass; return a needed fi
 to the parent unless the assignment explicitly authorizes it. Do not install a new
 framework, weaken assertions, publish or use live data without authorization.
 Keep unverified criteria open. Do not delegate further.
+
+Use only for explicitly requested delegation or independent review; availability
+does not require a separate agent during ordinary implementation.

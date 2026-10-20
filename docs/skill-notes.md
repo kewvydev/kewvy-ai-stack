@@ -19,8 +19,11 @@ in the user's environment. Selected directories and their needed references only
 | vercel-composition-patterns | vercel-labs/agent-skills | Global; relevant to React, with actual-version checks before React 19 rules |
 | sdd-workflow | Original stack content | Every project profile; activation still needs approval for the change |
 
-Global does not mean every workflow runs on each task. Codex selects applicable
-skills; the three explicit-only upstream policies stay explicit-only. Global UI
+Global does not mean every workflow runs on each task. Three small category
+entrypoints select task-specific guidance (see skills/catalog.json). The nine
+specialized skills are excluded from implicit discovery; the category reads one
+needed skill, or the user names it explicitly. Original request gates remain.
+Global UI
 skills do not change technology profile inheritance or install frontend packages
 into backend projects. No universal TDD or SDD mandate is introduced.
 
@@ -35,7 +38,8 @@ format validation. Updates remain the existing manager's responsibility.
 
 The installed package writes other global skills under `~/.agents/skills` by default.
 If an unowned definition already exists at that destination, installation refuses
-the conflict. Rollback does not delete or restore externally managed skills.
+the conflict. Rollback preserves externally managed bodies. The stack owns only the added
+invocation policy on reused skills; an existing unowned policy blocks installation.
 A later change to the lookup directory does not relinquish previously owned files.
 
 ## Security auditor adaptation
@@ -58,9 +62,11 @@ certification. No active exploitation or live scanning is authorized by this rol
 states custom agents inherit parent permissions and MCP servers. Do not translate
 Claude's disallowedTools or sandbox_mode into a false enforcement claim. For a
 filesystem read-only CLI session use `codex --sandbox read-only` before asking it
-to use security-auditor; connector permissions remain separate. Global instructions
-route auth/untrusted-input and pre-merge review to the auditor when delegation is
-available; no pre-merge hook, automatic merge or deployment is installed.
+to use security-auditor; connector permissions remain separate. Version 0.6 removes
+the global auth/untrusted-input/pre-merge routing mandate. All custom roles require
+explicitly requested delegation or review; the main agent still checks relevant
+validation and security during normal implementation. No pre-merge hook, automatic
+merge or deployment is installed.
 
 ## Provenance and publication limits
 

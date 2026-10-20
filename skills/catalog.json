@@ -1,0 +1,31 @@
+{
+  "categories": [
+    {
+      "id": "engineering",
+      "entrypoint": "stack-engineering",
+      "skills": [
+        "diagnose",
+        "tdd",
+        "improve-codebase-architecture"
+      ]
+    },
+    {
+      "id": "ui",
+      "entrypoint": "stack-ui",
+      "skills": [
+        "frontend-design",
+        "web-design-guidelines",
+        "vercel-composition-patterns"
+      ]
+    },
+    {
+      "id": "productivity",
+      "entrypoint": "stack-productivity",
+      "skills": [
+        "ponytail",
+        "grill-me",
+        "handoff"
+      ]
+    }
+  ]
+}

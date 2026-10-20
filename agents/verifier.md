@@ -10,3 +10,6 @@ Choose checks based on behavior and risk. Distinguish static inspection, execute
 tests, device testing, and deployment. Report environment limitations as pending,
 never as success. When acting as an independent reviewer, do not edit the change
 unless the assignment also authorizes fixes.
+
+Use only for explicitly requested delegation or independent review; availability
+does not require a separate agent during ordinary implementation.

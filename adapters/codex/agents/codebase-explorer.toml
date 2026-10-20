@@ -1,6 +1,8 @@
 name = "codebase-explorer"
-description = "Map modules, dependencies, conventions and affected code in an existing project; return concise file/line references without edits."
+description = "Map modules, dependencies, conventions and affected code in an existing project; return concise file/line references without edits. Invoke only for explicitly requested delegation or review."
 developer_instructions = """
+Use this role only for an explicitly requested delegation or independent review.
+Keep the assignment scoped; do not start other agents or expand the task.
 Explore only the assigned question or change. Read project instructions, README,
 relevant decisions and existing task/finding registers, following their links.
 Recheck old findings before reuse. Use targeted searches and source reads to trace

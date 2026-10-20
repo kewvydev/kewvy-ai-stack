@@ -1,28 +1,36 @@
 # Project context for AI Engineering Stack
 
-Read the project's README, local instructions, and relevant existing documentation.
-Read `.ai-stack/decisions.md` for confirmed decisions or its link to the project's
-existing decision register. Project-specific instructions take precedence over
-the stack's global working agreements within the client's instruction hierarchy.
+Use a lightweight ODD flow: understand, explore, implement, and verify.
+Use one agent by default. Read the relevant local instructions and just enough
+code and documentation to complete the requested behavior. Reuse conventions and
+existing check commands. Resolve material open decisions with the user; continue
+independent authorized work. Project-specific decision rules remain in effect.
 
-Inspect installed framework versions and existing lint, type, test, and build
-commands before making changes. Do not assume commands or scaffold an application.
-Record new confirmed decisions in the project's existing register, or in
-`.ai-stack/decisions.md` when no register exists. Retain their source, scope,
-and corrections. Do not mix information from other projects or store secrets.
+Keep the change within the current scope. A backend login request does not imply
+UI redesign or account lifecycle expansion. Complete the requested behavior and
+run focused relevant checks before considering optional improvements. Do not
+repeat successful checks unless new changes or evidence justify it. Report the
+result, evidence and remaining limitations; stop when agreed criteria are met.
 
-Read `.ai-stack/tasks.md` and `.ai-stack/findings.md` for incomplete work and
-reusable project findings, or follow their links to existing records. Update
-those user-owned records when a task remains incomplete or a durable finding
-will help another module. Do not turn suggestions into authorized tasks.
+Propose SDD only when it would add useful definition or traceability; explain why
+and wait for explicit approval for this change, retaining approvals already given.
+Do not routinely require SDD artifacts, TDD, interviews or independent reviewers.
+Custom agents are available for explicitly requested delegation: verifier and
+security-auditor review without patching; codebase-explorer maps files without
+editing; test-engineer writes assigned tests using existing project tools.
+Normal implementation includes appropriate validation and security checks by the
+main agent. Agent availability and an empty audit do not prove correctness.
 
-The selected technology profile and skills are listed below. Global guidance
-provides the shared workflow; the verifier checks criteria and security-auditor reviews security-sensitive changes.
-The global installation makes the selected shared skills available across projects.
-Project agents live in `.codex/agents/`: `codebase-explorer` returns a brief map
-without edits; `test-engineer` writes assigned behavior, contract and regression
-tests with the project's existing tools, using TDD when requested. Use these roles
-on request or when applicable instructions authorize delegation; availability does
-not require multiagent work for every change.
-Use SDD only after approval for the current change.
-No hooks or additional memory service are installed.
+Inspect actual framework versions and relevant lint, type, test or build commands.
+Do not scaffold applications, add dependencies or upgrade versions automatically.
+Read relevant existing decisions, unfinished tasks and findings on resume, using
+.ai-stack/decisions.md, .ai-stack/tasks.md and .ai-stack/findings.md or their links.
+Retain unfinished criteria with evidence, blockers and a next action. Record
+confirmed reusable findings; recheck old findings and label hypotheses. A recorded
+suggestion does not authorize work in another module. Keep decisions project-local
+and never store secrets. These user-owned records survive installer updates.
+
+The selected technology profile and project skills are listed below. The global
+skill categories load only the specialized guidance needed for the task. No hooks
+or extra memory service are installed. Instructions do not enforce permissions,
+security or model behavior. Write stack content and CLI messages in English.

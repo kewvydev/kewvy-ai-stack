@@ -392,13 +392,18 @@ def build(args):
                 raise Conflict(f"Unknown global skill: {name}")
             prefix = "skills/" + name + "/"
             external = user_skills / name / "SKILL.md"
-            if not any(key.startswith(prefix) for key in old_owned):
+            if prefix + "SKILL.md" not in old_owned:
                 existing = read(external)
                 if existing is not None:
                     if not re.search(rb"^name:\s*[\"']?" + re.escape(name.encode()) + rb"[\"']?\s*$", existing, re.M):
                         raise Conflict(f"Existing global skill has mismatched metadata: {external}")
                     external_skills[name] = {"path": str(external), "sha256": digest(existing)}
                     print(f"Reuse existing global skill (externally managed): {external}")
+                    # Own only the routing policy; never adopt the external skill body.
+                    policy = SOURCE / "skills" / name / "agents/openai.yaml"
+                    if policy.is_file():
+                        relative = Path(name) / "agents/openai.yaml"
+                        files["skills/" + str(relative)] = (user_skills / relative, "file", policy.read_bytes())
                     continue
             add_skills(files, user_skills, [name], destination="", key_prefix="skills/")
         files["codex/stack-development.config.toml"] = (codex / "stack-development.config.toml", "file", (SOURCE / manifest["mcpConfiguration"]).read_bytes())

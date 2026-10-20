@@ -15,3 +15,6 @@ from hypotheses. Inspect source rather than generating artifacts. Do not edit co
 or records, install dependencies, run builds or tests, or change remote state.
 Return useful durable findings for the parent to record. Do not delegate further.
 Read-only behavior is an instruction; actual permissions come from the client.
+
+Use only for explicitly requested delegation or independent review; availability
+does not require a separate agent during ordinary implementation.

@@ -1,7 +1,7 @@
 {
   "name": "ai-engineering-stack",
-  "version": "0.5.0-dev",
-  "status": "codex-project-agents",
+  "version": "0.6.0-dev",
+  "status": "codex-scoped-routing",
   "methodology": "ODD",
   "sddActivation": "user-approval",
   "firstClient": "codex",
@@ -203,7 +203,16 @@
     "skills/web-design-guidelines/references/upstream.md",
     "adapters/codex/agents/security-auditor.toml",
     "adapters/codex/agents/codebase-explorer.toml",
-    "adapters/codex/agents/test-engineer.toml"
+    "adapters/codex/agents/test-engineer.toml",
+    "skills/catalog.json",
+    "skills/diagnose/agents/openai.yaml",
+    "skills/frontend-design/agents/openai.yaml",
+    "skills/ponytail/agents/openai.yaml",
+    "skills/stack-engineering/SKILL.md",
+    "skills/stack-productivity/SKILL.md",
+    "skills/stack-ui/SKILL.md",
+    "skills/vercel-composition-patterns/agents/openai.yaml",
+    "skills/web-design-guidelines/agents/openai.yaml"
   ],
   "supportedClients": [],
   "profiles": [
@@ -235,7 +244,10 @@
     "skills/handoff/SKILL.md",
     "skills/web-design-guidelines/SKILL.md",
     "skills/frontend-design/SKILL.md",
-    "skills/vercel-composition-patterns/SKILL.md"
+    "skills/vercel-composition-patterns/SKILL.md",
+    "skills/stack-engineering/SKILL.md",
+    "skills/stack-ui/SKILL.md",
+    "skills/stack-productivity/SKILL.md"
   ],
   "templates": [
     "templates/AGENTS.md",
@@ -265,10 +277,14 @@
     "handoff",
     "web-design-guidelines",
     "frontend-design",
-    "vercel-composition-patterns"
+    "vercel-composition-patterns",
+    "stack-engineering",
+    "stack-ui",
+    "stack-productivity"
   ],
   "projectAgents": [
     "adapters/codex/agents/codebase-explorer.toml",
     "adapters/codex/agents/test-engineer.toml"
-  ]
+  ],
+  "skillCatalog": "skills/catalog.json"
 }

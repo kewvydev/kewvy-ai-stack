@@ -21,3 +21,8 @@ See docs/skill-notes.md in the source checkout for dependency and compatibility 
 Snapshots inside the global package are a distribution library. Reused user-global
 skills stay externally managed and may differ from those snapshots. Format checks
 and native discovery are not behavioral or security certification.
+
+Version 0.6 adds original stack-engineering/stack-ui/stack-productivity entrypoints
+and task-scoped invocation metadata. Nine specialized entrypoints stay explicitly
+invocable and can be read through their category. Reused external skill bodies
+remain externally owned; only the added invocation metadata is stack-owned.

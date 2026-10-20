@@ -120,7 +120,7 @@ class InstallerTests(unittest.TestCase):
     def test_edited_managed_content_blocks_update(self):
         self.install()
         path = self.codex / "AGENTS.md"
-        path.write_text(path.read_text().replace("lightweight ODD", "custom workflow"))
+        path.write_text(path.read_text().replace("optional skills", "custom workflow"))
         self.next_version()
         before = snapshot(self.base)
         self.cli("install", ok=False)
@@ -325,12 +325,26 @@ class InstallerTests(unittest.TestCase):
         self.assertEqual(path.read_bytes(), original["ponytail/SKILL.md"])
         state = json.loads((self.prefix / "installation.json").read_text())
         self.assertEqual(state["selection"]["externalSkills"]["ponytail"]["path"], str(path))
-        self.assertFalse(any(key.startswith("skills/ponytail/") for key in state["files"]))
+        self.assertNotIn("skills/ponytail/SKILL.md", state["files"])
+        self.assertIn("skills/ponytail/agents/openai.yaml", state["files"])
+        self.assertIn("allow_implicit_invocation: false", (path.parent / "agents/openai.yaml").read_text())
         before = snapshot(self.base)
         self.cli("install")
         self.assertEqual(before, snapshot(self.base))
         self.cli("rollback", "--global")
         self.assertEqual(snapshot(self.user_skills), original)
+
+    def test_external_skill_policy_conflict_preserves_everything(self):
+        path = self.user_skills / "ponytail/SKILL.md"
+        path.parent.mkdir(parents=True)
+        path.write_text("---\nname: ponytail\ndescription: User version.\n---\n")
+        policy = path.parent / "agents/openai.yaml"
+        policy.parent.mkdir()
+        policy.write_text("policy:\n  allow_implicit_invocation: true\n")
+        before = snapshot(self.base)
+        result = self.cli("install", ok=False)
+        self.assertIn("not owned", result.stderr)
+        self.assertEqual(before, snapshot(self.base))
 
     def test_unowned_native_global_skill_blocks_all_writes(self):
         path = self.user_skills / "tdd/SKILL.md"

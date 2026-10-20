@@ -110,7 +110,7 @@ multi_agent = true
             print("PASS: Codex recognizes Context7 and GitHub definitions; connections were not authenticated.")
             try:
                 cases = [(target, profile, None) for target, profile in [(project, "core"), (nested, "core"), *profile_projects]]
-                cases.extend((project, "core", skill) for skill in ("grill-me", "handoff", "improve-codebase-architecture"))
+                cases.extend((project, "core", skill) for skill in json.loads((ROOT / "skills/catalog.json").read_text())["categories"][0]["skills"] + ["ponytail", "grill-me", "handoff", "frontend-design", "web-design-guidelines", "vercel-composition-patterns"])
                 for cwd, profile, requested_skill in cases:
                     start = len(requests)
                     result = subprocess.run([
@@ -125,7 +125,7 @@ multi_agent = true
                     payload = json.dumps(requests[start])
                     for alias, directory in re.findall(r"`(r[0-9]+)` = `([^`]+)`", payload):
                         payload = payload.replace(alias + "/", directory + "/")
-                    sentinels = ["GLOBAL_PERSONAL_SENTINEL", "Use a lightweight ODD flow", "PROJECT_PERSONAL_SENTINEL", f"Selected profile: `{profile}`"]
+                    sentinels = ["GLOBAL_PERSONAL_SENTINEL", "This installation provides optional skills", "PROJECT_PERSONAL_SENTINEL", "Use a lightweight ODD flow", f"Selected profile: `{profile}`"]
                     if cwd == nested:
                         sentinels.append("NESTED_OVERRIDE_SENTINEL")
                         if "IGNORED_NESTED_SENTINEL" in payload:
@@ -138,9 +138,13 @@ multi_agent = true
                         raise RuntimeError("Codex did not discover the selected React skill")
                     if profile == "nestjs" and "Develop and review NestJS modules, dependency injection, API boundaries, and authorization using the project version and conventions." not in payload:
                         raise RuntimeError("Codex did not discover the selected NestJS skill")
-                    for name in ("ponytail", "tdd", "diagnose", "web-design-guidelines", "frontend-design", "vercel-composition-patterns"):
+                    for name in ("stack-engineering", "stack-ui", "stack-productivity"):
                         if str(base / ".agents/skills" / name / "SKILL.md") not in payload:
                             raise RuntimeError("Codex did not discover global skill: " + name)
+                    for category in json.loads((ROOT / "skills/catalog.json").read_text())["categories"]:
+                        for name in category["skills"]:
+                            if name != requested_skill and str(base / ".agents/skills" / name / "SKILL.md") in payload:
+                                raise RuntimeError("Specialized global skill leaked into implicit discovery: " + name)
                     if requested_skill and str(base / ".agents/skills" / requested_skill / "SKILL.md") not in payload:
                         raise RuntimeError("Codex did not load explicitly requested skill: " + requested_skill)
                     for description in (
@@ -170,7 +174,9 @@ multi_agent = true
                 payload = json.dumps(requests[start])
                 if "Map modules, dependencies, conventions and affected code in an existing project" in payload or "Design and write behavior, contract and regression tests with existing project tools" in payload:
                     raise RuntimeError("Project agents leaked into an uninitialized sibling project")
-                print("PASS: project agents are absent from an uninitialized sibling project.")
+                if "Use a lightweight ODD flow" in payload or "Use security-auditor for authentication" in payload:
+                    raise RuntimeError("Stack workflow leaked into an uninitialized project")
+                print("PASS: project agents and stack workflow are absent from an uninitialized sibling project.")
             finally:
                 server.shutdown()
                 worker.join(timeout=5)

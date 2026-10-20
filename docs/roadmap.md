@@ -59,3 +59,11 @@ Distribute codebase-explorer/test-engineer per project with native adapters, rol
 contracts, ownership/conflict protection, update/rollback and discovery checks.
 Keep global native agents unchanged and reuse profile tools. Behavioral evaluations
 of map quality and test engineering remain separate from installation validation.
+
+## 0.6.0-dev routing correction
+
+Move ODD/records to initialized projects; keep the global catalog optional.
+Add three task categories with progressive specialized guidance, retain explicit
+skill invocation, and remove routine multiagent/auth-auditor mandates. Preserve
+Meritum rules and external skill bodies. Discovery and installer validation do
+not replace future behavior and cost measurement on real scoped tasks.

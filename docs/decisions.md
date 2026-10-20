@@ -172,3 +172,33 @@ advertise project-local agents before that fixture trust entry was added. Existi
 user-global skills with duplicate names are disabled only in the fixture config
 so explicit skill checks resolve its temporary copies. Real trust, permissions,
 models and existing configuration are preserved by the installer.
+
+## Scoped skills and global leakage correction — 2026-10-19
+
+The user reports unnecessary agents, UI work during backend tasks and excessive
+token use, including in Meritum without local stack initialization. The user
+selected engineering/UI/productivity categories activated by actual task need,
+and explicitly required preserving Meritum's own decision rules unchanged.
+
+Expected behavior before implementation: global availability must not impose
+project ODD, task records or mandatory security review on uninitialized projects.
+Default to one agent and complete the requested outcome with focused checks.
+Custom agents remain available for explicitly requested delegation/review. Ordinary
+auth work still needs appropriate implementation security checks by the main agent.
+No model/effort, Meritum rules, hooks, MCPs or application code changes.
+
+Three small category skills select only needed linked guidance. Nine leaf skills
+are hidden from implicit discovery but remain explicitly invocable. Category
+routing preserves the prior request conditions of interviews, handoffs, architecture
+reviews and TDD. Original skill bodies stay at their existing names/paths.
+Reused user-managed skills receive only a separately owned invocation policy;
+existing unowned policy files block installation. Keep external body hashes and
+ownership separate; test repeats, conflicts, real prior-version upgrade/rollback,
+and native discovery independently of actual model behavior or token savings.
+
+Observed cause: personal ~/.codex/AGENTS.md mandated security-auditor for auth,
+untrusted input and pre-merge review across projects. Six global leaf skills were
+implicitly discoverable, including UI. Meritum had no local installation metadata.
+Its recent conversation also explicitly requested UI and later all M01 client
+integration, and ended at a usage limit. This evidence does not establish that
+every UI action was unrelated or quantify the stack's share of token consumption.

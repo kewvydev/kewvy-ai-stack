@@ -64,6 +64,17 @@ def main():
     global_skills = manifest.get("globalSkills", [])
     require(len(global_skills) == len(set(global_skills)), "Duplicate global skills")
     require(set(global_skills).issubset(skills), "Unknown global skills")
+    catalog = read_json(manifest["skillCatalog"])
+    require(manifest["skillCatalog"] in package_files, "Skill catalog missing from package")
+    members = []
+    categories = catalog["categories"]
+    require({c["id"] for c in categories} == {"engineering", "ui", "productivity"}, "Invalid skill categories")
+    for category in categories:
+        require(category["entrypoint"] in global_skills, "Missing global category entrypoint")
+        require(set(category["skills"]).issubset(global_skills), "Unknown category skill")
+        members.extend(category["skills"])
+    require(len(members) == len(set(members)), "Skill belongs to multiple categories")
+    require(set(members) | {c["entrypoint"] for c in categories} == set(global_skills), "Uncategorized global skill")
     for relative in manifest["skills"]:
         for path in (ROOT / relative).parent.rglob("*"):
             require(not path.is_symlink(), f"Symlink in skill package: {path}")

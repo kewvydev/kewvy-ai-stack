@@ -19,8 +19,8 @@ All stack content is maintained in English.
 
 ## Proposed design
 
-A small core with optional modules. Codex is the first target client. Shared global
-workflow guidance and local project context have separate canonical templates.
+A small core with optional modules. Codex is the first target client. Global optional catalogs
+and local project workflow have separate canonical templates.
 
 ```text
 agents/       Reusable role contracts
@@ -81,7 +81,7 @@ ai-stack init /absolute/path/to/existing-project
 ```
 
 Global defaults are `~/.local/share/ai-engineering-stack`, `~/.local/bin`, and
-`$CODEX_HOME` (normally `~/.codex`). Global guidance applies to all Codex projects.
+`$CODEX_HOME` (normally `~/.codex`). The global catalog is visible in all Codex projects; ODD applies only after project initialization.
 Read the [installation guide](docs/installation.md) before applying it to your
 personal environment. Development tests do not install into personal configuration
 or Meritum. Project initialization persists state and a user-owned decision record;
@@ -102,7 +102,8 @@ Every profile now installs `sdd-workflow` and its four templates. Availability
 does not approve using SDD for a change. Global installation supplies ponytail,
 grill-me, tdd, diagnose, improve-codebase-architecture, handoff,
 web-design-guidelines, frontend-design and vercel-composition-patterns. Existing
-user-global names are reused without ownership or overwriting. These global
+user-global skill bodies are reused without ownership or replacement. Only a small
+stack-owned invocation policy is added; unowned policy conflicts are preserved. These global
 skills are available to projects without copying them into every repository.
 Framework skills remain separated by profile.
 
@@ -119,4 +120,25 @@ Test engineer designs/writes scoped behavior, contract and regression tests, reu
 existing profile tools and applies TDD when requested. They inherit parent model
 and permissions and remain available on demand. Update the global package, then
 rerun project initialization; see [installation](docs/installation.md).
-see you soon!!
+
+## Scoped skills and delegation (0.6.0-dev)
+
+| Category entrypoint | Specialized guidance loaded only as needed |
+| --- | --- |
+| stack-engineering | diagnose, tdd, improve-codebase-architecture |
+| stack-ui | frontend-design, web-design-guidelines, vercel-composition-patterns |
+| stack-productivity | ponytail, grill-me, handoff |
+
+The three short entrypoints support automatic selection by task. Specialized
+skills are omitted from implicit discovery and loaded through the relevant link,
+or directly with `$skill-name`. Interviews, architecture review, handoff and TDD
+retain their request gates. Backend-only work does not select UI guidance.
+
+ODD lives in initialized projects. Global installation supplies an optional catalog,
+without mandating audits or imposing ODD/records on uninitialized repositories.
+Use one agent by default; custom agents require explicitly requested delegation
+or review. This replaces the earlier global auth/pre-merge auditor mandate.
+Update global installation and explicitly selected projects, then start a fresh
+session. Existing chats can retain previous instructions and history. See
+[workflow](docs/workflow.md) for scope and [verification](docs/foundation-verification.md)
+for the distinction between discovery checks and actual model behavior.

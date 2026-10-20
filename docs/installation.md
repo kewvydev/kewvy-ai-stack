@@ -16,10 +16,11 @@ python3 tools/stack.py install
 | --- | --- |
 | `~/.local/share/ai-engineering-stack/` | Minimal core snapshot, installation state, latest backup |
 | `~/.local/bin/ai-stack` | Launcher requiring `python3` on PATH |
-| `$CODEX_HOME/AGENTS.md`, normally `~/.codex/AGENTS.md` | Managed block of global workflow guidance |
+| `$CODEX_HOME/AGENTS.md`, normally `~/.codex/AGENTS.md` | Managed block of optional catalog guidance |
 
 The CLI does not modify PATH; use the launcher's absolute path if necessary.
-Global guidance applies to all Codex projects, including uninitialized projects.
+The optional catalog is visible across Codex projects. ODD and records apply only
+to initialized projects; their own decision rules remain intact.
 Restart existing sessions to discover new instructions.
 
 Use `--prefix`, `--bin-dir`, and `--codex-home` for other destinations. They must
@@ -190,7 +191,8 @@ and verification records for exact scope.
 skill, it checks the destination selected by `--skills-dir` (default `~/.agents/skills`) and reuses a matching
 existing skill without overwriting it. The state records its path and entrypoint
 hash as an external dependency. Reused versions stay managed by their original
-installer; stack updates/rollback do not modify them. The package keeps snapshots
+installer; stack updates/rollback do not modify their bodies. See the 0.6 policy
+exception below. The package keeps snapshots
 for machines without those skills. Repeat custom lookup paths for later operations.
 
 `init` includes sdd-workflow and four templates in every profile. The shared global
@@ -217,8 +219,8 @@ agent permissions and limits. No real security audit is performed by installatio
 
 The global skills directory is a fourth recorded installation root. An existing
 0.3.0-dev state without this root can update and roll back. New states must retain
-the root when they own global skills. Reusing a skill leaves that whole directory
-externally managed; only its entrypoint path/hash is observed.
+the root when they own global skills. Reusing a skill leaves its body externally managed; its entrypoint path/hash is
+observed. Version 0.6 adds an independently owned invocation policy as below.
 
 For an isolated install, select a separate `--codex-home`; skills default to its
 sibling `.agents/skills` rather than your personal directory. You can set
@@ -261,3 +263,24 @@ Codex loads project agent configuration in a trusted project context. The fixtur
 trusts only its temporary repository and disables ambient duplicate skill names
 only in its temporary Codex configuration. The installer does not grant trust
 to real projects or modify their existing client configuration.
+
+## Scoped categories (0.6.0-dev)
+
+Global installation adds stack-engineering, stack-ui and stack-productivity beside
+the nine specialized skills. Category discovery is automatic. The nine leaf
+skills use `allow_implicit_invocation: false` to avoid separate automatic triggers;
+a category reads the relevant linked entrypoint as needed. Explicit `$skill-name`
+requests still work. There is no daemon, hook or enforced classifier.
+
+For an externally managed existing skill, the installer preserves SKILL.md and
+all its resources, recording its entrypoint as an external dependency. It manages
+only `agents/openai.yaml` for invocation policy. An existing unowned policy file
+causes a conflict before writes; it is never silently replaced. Subsequent installs
+retain this partial ownership. Rollback restores/removes only stack-owned policy
+files, preserving original skill bodies. Their original manager may change them;
+if it changes an owned policy, the next operation reports a conflict.
+
+Update with install --dry-run, then install. Reinitialize only projects selected
+by the user; an uninitialized project requires no init for the global correction.
+Start a new Codex session to avoid stale instruction history. This update does
+not change model, reasoning effort, personal config, trust or other project rules.

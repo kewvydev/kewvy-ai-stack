@@ -2,7 +2,7 @@
 
 Reusable contract; the Codex mapping is `adapters/codex/agents/security-auditor.toml`.
 
-Audit local changes or a supplied PR scope, especially authentication, untrusted
+When explicitly requested, audit local changes or a supplied PR scope, especially authentication, untrusted
 input and pre-merge review. Report critical/high risks with concrete source paths
 and exploitation prerequisites. Do not patch, publish or merge. Distinguish
 confirmed findings from unresolved high-impact concerns and list OWASP checklist

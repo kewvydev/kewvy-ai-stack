@@ -68,5 +68,21 @@ project's `.codex/agents/`. Explorer returns a brief source map without edits;
 test engineer writes assigned behavior/contract/regression tests using existing
 project tools. Use TDD when requested, retaining prior agreement on criteria.
 Neither role is a mandatory stage or authorization for additional delegation.
-Use them on request or under applicable delegation instructions; keep everyday
-work proportional. The global verifier/security-auditor retain their existing roles.
+Use them for explicitly requested delegation; keep everyday work proportional.
+The global verifier/security-auditor are also on demand, not mandatory stages.
+
+## Scope and cost correction (0.6.0-dev)
+
+Global installation exposes optional catalogs; project initialization opts into
+ODD and local records. Uninitialized projects keep their own rules. Default to
+one agent, the requested outcome and relevant existing context. A backend login
+task does not automatically include UI, registration, logout or account deletion.
+Run focused checks and finish when agreed criteria are met. Broaden only when
+needed for correctness or explicitly requested. Do not reread entire specs or
+repeat passing checks without a new reason.
+
+Select engineering, UI or productivity guidance per actual task step, reading only
+the relevant linked skill. TDD, architecture reviews, interviews and handoffs retain
+their specific request conditions. SDD requires approval for the current change.
+Independent review/delegation requires an explicit request. These are behavioral
+instructions, not a token limit, deterministic router or correctness guarantee.

@@ -33,7 +33,7 @@
     },
     "license": "MIT",
     "licenseEvidence": "local skill frontmatter",
-    "adaptation": "User-installed local snapshot; original content retained. Ponytail entrypoint metadata normalized for Agent Skills."
+    "adaptation": "User-installed local snapshot; original content retained. Ponytail entrypoint metadata normalized for Agent Skills. 0.6: specialized invocation metadata routes automatic selection through task categories; body provenance retained."
   },
   {
     "skill": "frontend-design",
@@ -46,7 +46,7 @@
     },
     "license": "Apache-2.0",
     "licenseEvidence": "retained LICENSE.txt",
-    "adaptation": "User-installed local snapshot; original content retained. Ponytail entrypoint metadata normalized for Agent Skills."
+    "adaptation": "User-installed local snapshot; original content retained. Ponytail entrypoint metadata normalized for Agent Skills. 0.6: specialized invocation metadata routes automatic selection through task categories; body provenance retained."
   },
   {
     "skill": "grill-me",
@@ -55,7 +55,7 @@
     "sourcePath": "skills/productivity/grill-me",
     "license": "MIT",
     "licenseEvidence": "retained repository LICENSE",
-    "adaptation": "Codex entrypoint with local records and authorization boundaries; original entrypoint and required references retained. Original explicit-only policies preserved."
+    "adaptation": "Codex entrypoint with local records and authorization boundaries; original entrypoint and required references retained. Original explicit-only policies preserved. 0.6: specialized invocation metadata routes automatic selection through task categories; body provenance retained."
   },
   {
     "skill": "tdd",
@@ -64,7 +64,7 @@
     "sourcePath": "skills/engineering/tdd",
     "license": "MIT",
     "licenseEvidence": "retained repository LICENSE",
-    "adaptation": "Codex entrypoint with local records and authorization boundaries; original entrypoint and required references retained. Original explicit-only policies preserved."
+    "adaptation": "Codex entrypoint with local records and authorization boundaries; original entrypoint and required references retained. Original explicit-only policies preserved. 0.6: specialized invocation metadata routes automatic selection through task categories; body provenance retained."
   },
   {
     "skill": "improve-codebase-architecture",
@@ -73,7 +73,7 @@
     "sourcePath": "skills/engineering/improve-codebase-architecture",
     "license": "MIT",
     "licenseEvidence": "retained repository LICENSE",
-    "adaptation": "Codex entrypoint with local records and authorization boundaries; original entrypoint and required references retained. Original explicit-only policies preserved. HTML report scaffold replaced with static inline CSS, CSP and explicit escaping rules; upstream executable CDN/Mermaid recipe is not shipped as the offered scaffold."
+    "adaptation": "Codex entrypoint with local records and authorization boundaries; original entrypoint and required references retained. Original explicit-only policies preserved. HTML report scaffold replaced with static inline CSS, CSP and explicit escaping rules; upstream executable CDN/Mermaid recipe is not shipped as the offered scaffold. 0.6: specialized invocation metadata routes automatic selection through task categories; body provenance retained."
   },
   {
     "skill": "handoff",
@@ -82,7 +82,7 @@
     "sourcePath": "skills/productivity/handoff",
     "license": "MIT",
     "licenseEvidence": "retained repository LICENSE",
-    "adaptation": "Codex entrypoint with local records and authorization boundaries; original entrypoint and required references retained. Original explicit-only policies preserved."
+    "adaptation": "Codex entrypoint with local records and authorization boundaries; original entrypoint and required references retained. Original explicit-only policies preserved. 0.6: specialized invocation metadata routes automatic selection through task categories; body provenance retained."
   },
   {
     "skill": "diagnose",
@@ -93,7 +93,7 @@
     "renameCommit": "221ffca96736afefdc08ca7cf0b3965e9ea83f41",
     "license": "MIT",
     "licenseEvidence": "retained repository LICENSE",
-    "adaptation": "Requested legacy name retained as a Codex compatibility entrypoint; reuses project diagnosing-bugs or bundled fallback."
+    "adaptation": "Requested legacy name retained as a Codex compatibility entrypoint; reuses project diagnosing-bugs or bundled fallback. 0.6: specialized invocation metadata routes automatic selection through task categories; body provenance retained."
   },
   {
     "skill": "web-design-guidelines",
@@ -102,7 +102,7 @@
     "sourcePath": "skills/web-design-guidelines",
     "license": "not declared in selected upstream directory",
     "licenseEvidence": "No license claim added; publication requires license review.",
-    "adaptation": "Concise Codex entrypoint; original guidance and relevant rules retained; no automatic external installer or CDN execution."
+    "adaptation": "Concise Codex entrypoint; original guidance and relevant rules retained; no automatic external installer or CDN execution. 0.6: specialized invocation metadata routes automatic selection through task categories; body provenance retained."
   },
   {
     "skill": "vercel-composition-patterns",
@@ -111,6 +111,6 @@
     "sourcePath": "skills/composition-patterns",
     "license": "MIT",
     "licenseEvidence": "upstream frontmatter",
-    "adaptation": "Concise Codex entrypoint; original guidance and relevant rules retained; no automatic external installer or CDN execution."
+    "adaptation": "Concise Codex entrypoint; original guidance and relevant rules retained; no automatic external installer or CDN execution. 0.6: specialized invocation metadata routes automatic selection through task categories; body provenance retained."
   }
 ]

@@ -42,6 +42,7 @@ stack.json    Content index and project status
 - [Foundation requirements](specs/00-foundation.md).
 - [Everyday workflow and SDD activation](docs/workflow.md).
 - [Installation, updates, ownership, and recovery](docs/installation.md).
+- [Optional Obsidian project memory](docs/memory.md).
 - [Source research, selections, and limitations](docs/evolution-research.md).
 - [gentle-ai analysis](docs/reference-analysis.md).
 - [Module recommendations](docs/catalog.md).
@@ -165,3 +166,24 @@ Update global installation and explicitly selected projects, then start a fresh
 session. Existing chats can retain previous instructions and history. See
 [workflow](docs/workflow.md) for scope and [verification](docs/foundation-verification.md)
 for the distinction between discovery checks and actual model behavior.
+
+## Obsidian project memory (0.7.0-dev)
+
+Connect selected initialized projects to a shared Obsidian vault, using a unique
+folder per project. New-chat instructions read a brief project brain first and
+update useful context after significant work. Notes retain architecture, confirmed
+decisions, active work and reusable findings, with sources and verification limits.
+
+```bash
+ai-stack memory init /absolute/project --vault "/absolute/My Vault" --project my-project --dry-run
+ai-stack memory init /absolute/project --vault "/absolute/My Vault" --project my-project
+ai-stack memory context /absolute/project
+ai-stack memory search /absolute/project "authentication"
+```
+
+Uses local Markdown and qualified Obsidian wikilinks; no MCP, plugin, API key or
+database is required. Templates start unreviewed; the assistant captures relevant
+context from existing sources. Existing records and human edits are preserved.
+Missing vault access falls back to local records. Instructions guide behavior;
+they do not guarantee automatic capture or eliminate code verification. See the
+[setup, limits and references](docs/memory.md).

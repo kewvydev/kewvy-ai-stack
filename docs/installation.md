@@ -100,6 +100,20 @@ symlink parents are rejected, including broken links. Non-empty global or root
 project `AGENTS.override.md` files cause conflicts because they would hide installed
 guidance. Nested overrides remain available for local conventions.
 
+## Optional Obsidian connection (0.7.0-dev)
+
+Update the global package and rerun `init` for each selected project before
+connecting it. Use `ai-stack memory init TARGET --vault /absolute/vault --project
+unique-slug --dry-run`, then repeat without `--dry-run`. The vault must already
+exist and remain separate from project directories. No global default is set.
+
+The machine-local `.ai-stack/memory.json` binding and `Projects/<slug>/` vault
+notes are user-owned and survive installation updates/rollback. Preview writes
+nothing; repeat connection preserves notes and restores missing seeds. The CLI
+does not migrate existing records or populate project knowledge automatically.
+Start a fresh Codex chat for the updated startup instructions. See the
+[memory guide](memory.md) for context/search, permissions, recovery and sources.
+
 ## Ownership and updates
 
 Instruction blocks use `BEGIN:ai-engineering-stack` and `END:ai-engineering-stack`

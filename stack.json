@@ -1,7 +1,7 @@
 {
   "name": "ai-engineering-stack",
-  "version": "0.6.0-dev",
-  "status": "codex-scoped-routing",
+  "version": "0.7.0-dev",
+  "status": "codex-obsidian-memory",
   "methodology": "ODD",
   "sddActivation": "user-approval",
   "firstClient": "codex",
@@ -212,7 +212,14 @@
     "skills/stack-productivity/SKILL.md",
     "skills/stack-ui/SKILL.md",
     "skills/vercel-composition-patterns/agents/openai.yaml",
-    "skills/web-design-guidelines/agents/openai.yaml"
+    "skills/web-design-guidelines/agents/openai.yaml",
+    "tools/project_memory.py",
+    "docs/memory.md",
+    "templates/memory/index.md",
+    "templates/memory/architecture.md",
+    "templates/memory/decisions.md",
+    "templates/memory/tasks.md",
+    "templates/memory/findings.md"
   ],
   "supportedClients": [],
   "profiles": [
@@ -260,7 +267,12 @@
     "skills/sdd-workflow/assets/tasks.md",
     "skills/sdd-workflow/assets/verification.md",
     "templates/tasks.md",
-    "templates/findings.md"
+    "templates/findings.md",
+    "templates/memory/index.md",
+    "templates/memory/architecture.md",
+    "templates/memory/decisions.md",
+    "templates/memory/tasks.md",
+    "templates/memory/findings.md"
   ],
   "mcpCatalog": "mcp/catalog.json",
   "nativeAgents": [

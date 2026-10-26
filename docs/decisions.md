@@ -37,7 +37,7 @@ Decisions from 2026-10-19:
 | AQ-09 | Standard testing or TDD? What coverage matters? | Behavior- and risk-based tests; TDD when useful | Pending |
 | AQ-10 | GitHub or another provider? Where will projects deploy? | CI checks before deployment automation | Pending |
 | AQ-11 | Which MCP integrations first? | Documentation; GitHub if used; others by profile | Initial increment: none. Expansion: Context7 and GitHub selected; isolated configuration profile, authentication pending; existing connections preserved |
-| AQ-12 | Markdown memory or an external service? | Versioned Markdown first | JSON installation state and project-local decisions, incomplete tasks and reusable findings; no additional memory service or application database |
+| AQ-12 | Markdown memory or an external service? | Versioned Markdown first | Extended 2026-10-26: optional Obsidian memory in a shared vault, one folder per project; update after significant work; retain existing source records |
 | AQ-13 | Which language should the stack use? | One consistent language | Resolved: English throughout the stack |
 | AQ-14 | Personal use or public distribution? | Local use first; choose a license before publishing | Pending |
 | AQ-15 | Import maintained skills or write custom ones? | Custom workflow skills; selected external skills with versions and licenses | Approved: nestjs-best-practices, vercel-react-best-practices, diagnosing-bugs; selected pinned directories with concise Codex adaptations |
@@ -52,6 +52,43 @@ reflected in `docs/workflow.md`, instructions, the skill, contracts, the profile
 the manifest, README, requirements, and roadmap. English is recorded in AQ-13 and
 applies to all stack content. Revisit other questions as their stage approaches;
 there is no need to decide the entire catalog now.
+
+## Obsidian project memory — 2026-10-26
+
+The user requested a persistent project brain in Obsidian so new Codex chats can
+reuse context, and confirmed a shared vault with a separate folder per project
+and updates after significant work. This supersedes AQ-12's exclusion of an
+additional project memory location. It does not authorize modifying Codex's own
+personal memory store, installing into other projects, or migrating existing notes.
+
+Expected behavior before implementation:
+
+- Explicitly connect an initialized project with a vault path and unique project
+  slug. Keep the absolute machine-local binding under `.ai-stack/memory.json`.
+- Use ordinary Markdown, frontmatter and vault-relative wikilinks under
+  `Projects/<slug>/`. No plugin, MCP server, API key, database or daemon is needed.
+- Seed a brief startup index and architecture, decisions, tasks and findings notes.
+  They start unreviewed, not as a claim that the project has been analyzed.
+- Read the index first, search only that project's notes and inspect relevant
+  sources on demand. Record source paths, dates, revision and evidence limits;
+  correct stale memory rather than treating it as authority over current code.
+- Update useful memory after significant work. Preserve existing registers as
+  canonical sources and link/summarize them; do not blindly copy task-status files,
+  whole conversations, secrets or unrelated project information.
+- Preview writes nothing; repeat connection preserves notes; reject collisions,
+  unsafe paths and symlinks. Installer updates/rollback preserve notes and binding.
+- Missing or inaccessible vaults produce an explicit fallback to local records.
+  The adapter guides session behavior; it does not guarantee model compliance,
+  automatic capture on interruption, filesystem permission grants or zero analysis.
+
+Implementation choices within that scope: a standard-library CLI, explicit
+`memory init`, `context`, `search` and `status` commands, seed-only notes, a folder
+ownership marker, bounded retrieval, and no silent rebinding. Existing vaults are
+required; opening/creating the actual Obsidian vault remains a user setup step.
+Tests use disposable vaults only. The user's real vault path is not yet supplied.
+
+Affected documents: foundation, workflow, installation guide, README, manifest,
+project instructions and the memory guide/research record.
 
 ## First installer approval — 2026-10-19
 

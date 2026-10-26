@@ -20,6 +20,18 @@ register rather than duplicating it. Record only confirmed decisions with source
 scope, and corrections. The CLI preserves this user-owned file through updates
 and manual rollback; it does not extract conversation memory or store application data.
 
+## Optional Obsidian continuity (0.7.0-dev)
+
+Explicitly connected projects use a shared vault with one folder per project.
+On a new chat, retrieve the brief index via `ai-stack memory context TARGET`,
+then follow only relevant notes and inspect current sources where needed.
+After significant work, update the index and relevant notes with sources,
+date/revision, evidence boundaries, blockers and next action. Keep existing
+registers authoritative; Obsidian summarizes and links them. Unconnected projects
+retain the local-record flow. An unavailable vault falls back explicitly to local
+records. See [memory setup and protocol](memory.md). This adds no service or hooks
+and does not guarantee capture after interruption or model compliance.
+
 ## When to propose SDD
 
 Suggested considerations: unclear behavior, decisions affecting several parts,

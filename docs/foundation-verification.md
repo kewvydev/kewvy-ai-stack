@@ -296,3 +296,43 @@ security audit or measured token reduction ran. Native discovery confirms contex
 assembly, not semantic category choice or compliance. New sessions avoid retaining
 old instruction history. No Meritum code, rules, model/effort, trust configuration,
 MCP authentication, hooks, external services or remote repository state changed.
+
+## Obsidian project memory — 0.7.0-dev, 2026-10-26
+
+The user confirmed a shared vault with one folder per project and memory updates
+after significant work. This increment adds direct-file connections, linked
+Markdown seeds, bounded context/search and initialized-project session guidance.
+Existing source records stay canonical; notes are summaries with source evidence.
+
+Executed in disposable projects, vaults and Codex homes:
+
+- Content/reference validation passed: 7 roles, 16 skills, 5 profiles and 4 MCP
+  candidates. No skill files changed, so unchanged skill validators were not rerun.
+- All 44 unit tests passed (33 existing installer cases plus 11 memory cases).
+  Memory tests cover preview without writes, installed-launcher operation, repeated
+  connection, human edits, unavailable vaults, uninitialized projects, folder
+  collisions, traversal/symlinks, scoped literal search, truncation, interrupted
+  connection recovery, write-failure cleanup and installer rollback preservation.
+- A genuine HEAD 14da93a 0.6.0-dev checkout was installed in temporary roots,
+  updated to 0.7.0-dev, connected through its installed launcher, and repeated.
+  Project/global rollback restored prior bytes while preserving vault notes and
+  the user-owned project binding. No real project was installed or rolled back.
+- Codex CLI 0.162.1 passed the existing local Responses fixture with an added
+  startup-memory instruction assertion for initialized projects and a negative
+  assertion for the uninitialized sibling. Fifteen positive discovery cases and
+  the negative case passed. MCP definitions parsed; authentication was not tested.
+  Initial loopback binding was denied by the sandbox; the isolated fixture then
+  passed with execution permission. No real model or credentials were used.
+
+An initial regression detected Python bytecode writes caused by the new module
+import during preview; bytecode generation is now disabled in the CLI before
+local imports. The subsequent complete suite passed with byte-for-byte preview
+and conflict preservation checks.
+
+No personal vault path was supplied or connected. Actual Obsidian UI rendering,
+model compliance with read/update guidance, cross-chat knowledge quality and
+measured token savings remain unverified. Seeds are explicitly unreviewed and do
+not assert project analysis. The stack does not grant external filesystem access,
+install an MCP/plugin, configure sync, migrate status files, update personal Codex
+memory, or guarantee capture when a conversation is interrupted. Meritum and all
+other real project installations remain unchanged by this development work.

@@ -67,3 +67,13 @@ Add three task categories with progressive specialized guidance, retain explicit
 skill invocation, and remove routine multiagent/auth-auditor mandates. Preserve
 Meritum rules and external skill bodies. Discovery and installer validation do
 not replace future behavior and cost measurement on real scoped tasks.
+
+## 0.7.0-dev Obsidian memory
+
+Add explicit shared-vault connections for selected initialized projects, with
+separate folders, linked notes, bounded context/search and startup/update guidance.
+Preserve existing canonical records and human edits; test disposable vaults and
+installed-launcher packaging. No personal vault is connected during development.
+Semantic retrieval, MCP memory services, automatic migration, relocation and
+cross-checkout sharing remain separate future choices. Actual model compliance,
+Obsidian UI behavior and reduced exploration cost require later usage evidence.

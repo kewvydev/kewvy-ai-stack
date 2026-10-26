@@ -439,8 +439,13 @@ def build(args):
 
 
 def main():
+    # Preview/status must not create bytecode files in the package directory.
+    sys.dont_write_bytecode = True
+    from project_memory import add_parser as add_memory_parser, run as run_memory
+
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
+    add_memory_parser(commands)
     for name in ("install", "init", "status", "rollback"):
         command = commands.add_parser(name)
         if name != "install":
@@ -456,6 +461,9 @@ def main():
             command.add_argument("--profile", help="Project technology profile; defaults to the recorded profile or core")
     args = parser.parse_args()
     try:
+        if args.command == "memory":
+            run_memory(args)
+            return 0
         if args.command == "init" and args.global_scope:
             raise Conflict("Use install for global installation")
         if args.command == "install" and getattr(args, "target", None):

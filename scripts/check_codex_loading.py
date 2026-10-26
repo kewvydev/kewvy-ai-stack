@@ -125,7 +125,7 @@ multi_agent = true
                     payload = json.dumps(requests[start])
                     for alias, directory in re.findall(r"`(r[0-9]+)` = `([^`]+)`", payload):
                         payload = payload.replace(alias + "/", directory + "/")
-                    sentinels = ["GLOBAL_PERSONAL_SENTINEL", "This installation provides optional skills", "PROJECT_PERSONAL_SENTINEL", "Use a lightweight ODD flow", f"Selected profile: `{profile}`"]
+                    sentinels = ["GLOBAL_PERSONAL_SENTINEL", "This installation provides optional skills", "PROJECT_PERSONAL_SENTINEL", "Use a lightweight ODD flow", "At the start of a new chat, run `ai-stack memory context", f"Selected profile: `{profile}`"]
                     if cwd == nested:
                         sentinels.append("NESTED_OVERRIDE_SENTINEL")
                         if "IGNORED_NESTED_SENTINEL" in payload:
@@ -176,6 +176,8 @@ multi_agent = true
                     raise RuntimeError("Project agents leaked into an uninitialized sibling project")
                 if "Use a lightweight ODD flow" in payload or "Use security-auditor for authentication" in payload:
                     raise RuntimeError("Stack workflow leaked into an uninitialized project")
+                if "At the start of a new chat, run `ai-stack memory context" in payload:
+                    raise RuntimeError("Obsidian session guidance leaked into an uninitialized project")
                 print("PASS: project agents and stack workflow are absent from an uninitialized sibling project.")
             finally:
                 server.shutdown()

@@ -1,7 +1,8 @@
 # Stack foundation
 
 Status: content foundation, Codex installer, approved skills/profiles, verifier,
-project records, global skills and security-auditor implemented through 0.6.0-dev.
+project records, global skills and security-auditor implemented through 0.6.0-dev;
+optional Obsidian memory added in 0.7.0-dev.
 Runtime evidence and limits are recorded in `docs/foundation-verification.md`.
 
 ## Problem
@@ -140,3 +141,20 @@ in docs/decisions.md. It does not activate SDD or additional memory services.
 - AC-30: reused external skill bodies are preserved; policy metadata has separate
   conflict-safe ownership, repeat-install and rollback semantics. Verify actual
   Codex discovery separately from model decisions, correctness and token savings.
+
+## Approved 0.7.0-dev Obsidian memory
+
+The 2026-10-26 user request supersedes the external-memory exclusion for this
+optional file-based integration only; no memory service or automatic installation.
+
+- AC-31: explicitly connect an initialized project to an existing shared vault
+  with a unique project folder and machine-local binding. Seed linked Markdown
+  notes without claiming analyzed context or migrating existing records.
+- AC-32: project startup guidance reads a bounded index before broad exploration;
+  retrieve relevant notes only and verify stale facts against current sources.
+  After significant work update useful context, sources, evidence and next actions.
+- AC-33: preview writes nothing, repeated connection preserves edits, collisions
+  and unsafe paths fail, retrieval stays within the connected project, and notes
+  survive installer updates/rollback. Missing vaults fall back to local records.
+- AC-34: test with disposable vaults and installed launcher; distinguish file/CLI
+  checks from actual Obsidian UI, filesystem permission grants and model behavior.

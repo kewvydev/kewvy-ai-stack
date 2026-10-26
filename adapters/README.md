@@ -1,7 +1,7 @@
 # Adapter contract
 
 The Codex core adapter is implemented in `codex/adapter.json` and consumed by
-`tools/stack.py`. It maps shared templates to native global/project `AGENTS.md`
+`tools/stack.sh`. It maps shared templates to native global/project `AGENTS.md`
 blocks. Global rules and local context remain separate canonical sources.
 See [installation](../docs/installation.md) for precedence, ownership, conflicts,
 updates, and verification limits.

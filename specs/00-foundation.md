@@ -1,8 +1,7 @@
 # Stack foundation
 
 Status: content foundation, Codex installer, approved skills/profiles, verifier,
-project records, global skills and security-auditor implemented through 0.6.0-dev;
-optional Obsidian memory added in 0.7.0-dev.
+project records, global skills and security-auditor implemented through 0.6.0-dev; Bash installer migration in 0.7.0-dev.
 Runtime evidence and limits are recorded in `docs/foundation-verification.md`.
 
 ## Problem
@@ -24,7 +23,8 @@ repeats work and can produce inconsistent configurations.
 - RQ-10: the agent proposes SDD and asks the user before activating it for a change.
 - RQ-11: all stack content must be in English.
 - RQ-12: a global installation complemented by initialization of existing projects.
-- RQ-13: start with a Python CLI; keep installation state and project decisions.
+- RQ-13: keep installation state and project decisions. Python was the initial
+  runtime; the approved 2026-10-26 migration replaces installation with Bash + jq.
 - RQ-14: enable no MCP integrations in the first increment.
 - RQ-15: keep separate future profiles for NestJS, React, Next.js, and Spring Boot,
   sharing React capabilities with Next.js. Framework versions remain project-specific.
@@ -142,19 +142,22 @@ in docs/decisions.md. It does not activate SDD or additional memory services.
   conflict-safe ownership, repeat-install and rollback semantics. Verify actual
   Codex discovery separately from model decisions, correctness and token savings.
 
-## Approved 0.7.0-dev Obsidian memory
 
-The 2026-10-26 user request supersedes the external-memory exclusion for this
-optional file-based integration only; no memory service or automatic installation.
+## Approved 0.7.0-dev Bash migration
 
-- AC-31: explicitly connect an initialized project to an existing shared vault
-  with a unique project folder and machine-local binding. Seed linked Markdown
-  notes without claiming analyzed context or migrating existing records.
-- AC-32: project startup guidance reads a bounded index before broad exploration;
-  retrieve relevant notes only and verify stale facts against current sources.
-  After significant work update useful context, sources, evidence and next actions.
-- AC-33: preview writes nothing, repeated connection preserves edits, collisions
-  and unsafe paths fail, retrieval stays within the connected project, and notes
-  survive installer updates/rollback. Missing vaults fall back to local records.
-- AC-34: test with disposable vaults and installed launcher; distinguish file/CLI
-  checks from actual Obsidian UI, filesystem permission grants and model behavior.
+- AC-31: install and initialize profiles through Bash + jq without invoking Python;
+  preserve direct commands and add an interactive menu using existing JSON profiles.
+- AC-32: menu selection, invalid input, cancellation, end of input and preview are
+  checked in a disposable terminal; no implicit default installs a project profile.
+  Project selection confirms the caller's current working directory instead of
+  requesting a path; declining or leaving the answer empty cancels installation.
+- AC-33: Python-created schema-1 installations can update and roll back, preserving
+  hashes, external skill ownership, user instructions, configuration and records.
+- AC-34: missing dependencies, profile isolation/inheritance, unchanged repeats,
+  unsafe paths, conflicts, write-failure recovery and interrupted updates remain
+  covered. Python validation tools and static compatibility fixtures may remain;
+  the user requested removal of all Python installer implementations.
+
+For the Bash runtime, preview/status stage temporary scratch files and remove them
+on normal exit; they leave installation destinations unchanged. This refines the
+first increment's no-write preview contract for file-based shell processing.

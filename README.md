@@ -5,9 +5,9 @@ optional SDD, agent roles, skills, tools, and selectable MCP integrations.
 
 ## Status
 
-A content foundation and Python standard-library CLI for global Codex core
-installation and project initialization. Preview, state, conflicts, updates, and
-rollback are tested in temporary directories. Native Codex instruction discovery
+A content foundation and Bash + jq installer with an interactive profile selector
+for global Codex installation and project initialization. Preview, state, conflicts,
+updates, and rollback are tested in temporary directories. Native Codex instruction discovery
 is checked with a local Responses fixture; model compliance is not tested.
 
 Version 0.3.0-dev adds selectable NestJS, React, Next.js, and Java/Maven Spring Boot
@@ -32,7 +32,7 @@ adapters/     Codex core mapping and contract for future adapters
 specs/        Requirements for the stack itself
 docs/         Analysis, recommendations, decisions, and roadmap
 scripts/      Local content validation
-tools/        Python installation CLI
+tools/        Bash installation CLI and JSON helpers
 tests/        Temporary-project installer tests
 stack.json    Content index and project status
 ```
@@ -67,15 +67,35 @@ python3 -m unittest discover -s tests -v
 python3 scripts/check_codex_loading.py
 ```
 
-The tools use Python 3.9+ standard library. The loading check also needs Codex CLI,
-Git, and a loopback port. It uses temporary configuration and a local fixture,
-rather than a model or external service. Linux is the tested platform.
+Installation requires Bash 4.4+, jq 1.6+, GNU coreutils, find, sort and awk.
+Python is used only for development validation/tests; it is not an installation
+runtime. No Python installer implementation is retained. The loading check also
+needs Codex CLI, Git, and a loopback port. It uses
+temporary configuration and a local fixture, rather than a model or external
+service. Linux is the tested platform.
 
-## Install the core
+## Install interactively
 
 ```bash
-python3 tools/stack.py install --dry-run
-python3 tools/stack.py install
+bash tools/stack.sh
+```
+
+Choose global installation first. Then open a terminal in your project directory
+and run `ai-stack` (or the script by its absolute path). Choose Project profile,
+confirm the displayed current directory and select core, NestJS, React, Next.js or
+Spring Boot. The menu uses the directory where you run it, not the script's folder;
+it never asks you to type a project path.
+The menu presents short profile descriptions, adapts to terminal width and shows
+a compact review before writing. Color respects `NO_COLOR`, `TERM=dumb` and output
+redirection. Use `--verbose` for the full list of planned files. Use
+`bash tools/stack.sh --dry-run` to preview from the menu without applying.
+After global installation, `ai-stack` opens the same menu.
+
+For scripts or direct commands:
+
+```bash
+bash tools/stack.sh install --dry-run
+bash tools/stack.sh install
 # Use ~/.local/bin/ai-stack directly if ~/.local/bin is not on PATH.
 ai-stack init /absolute/path/to/existing-project --dry-run
 ai-stack init /absolute/path/to/existing-project
@@ -91,7 +111,10 @@ it retains incomplete tasks and reusable findings without external memory or app
 Use `ai-stack init /absolute/path --profile nestjs|react|nextjs|spring-boot` to
 select a technology profile. Next.js shares React skills without duplication.
 Java/Maven is the Spring Boot preference; installed versions are inspected rather
-than upgraded automatically. The SDD engine is still undecided.
+than upgraded automatically. Existing Python installations can be updated with the
+Bash installer using the same destinations; see the migration and rollback notes
+in the installation guide.
+The SDD engine is still undecided.
 
 Design reference: [gentle-ai](https://github.com/Gentleman-Programming/gentle-ai).
 Additional architectural reference: [clawd-harness](https://github.com/orrrrli/clawd-harness).

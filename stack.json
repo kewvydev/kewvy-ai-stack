@@ -1,14 +1,15 @@
 {
   "name": "ai-engineering-stack",
   "version": "0.7.0-dev",
-  "status": "codex-obsidian-memory",
+  "status": "bash-profile-installer",
   "methodology": "ODD",
   "sddActivation": "user-approval",
   "firstClient": "codex",
   "language": "en",
-  "installer": "tools/stack.py",
+  "installer": "tools/stack.sh",
   "installationFiles": [
-    "tools/stack.py",
+    "tools/stack.sh",
+    "tools/installer.jq",
     "stack.json",
     "adapters/codex/adapter.json",
     "profiles/core.json",
@@ -212,14 +213,7 @@
     "skills/stack-productivity/SKILL.md",
     "skills/stack-ui/SKILL.md",
     "skills/vercel-composition-patterns/agents/openai.yaml",
-    "skills/web-design-guidelines/agents/openai.yaml",
-    "tools/project_memory.py",
-    "docs/memory.md",
-    "templates/memory/index.md",
-    "templates/memory/architecture.md",
-    "templates/memory/decisions.md",
-    "templates/memory/tasks.md",
-    "templates/memory/findings.md"
+    "skills/web-design-guidelines/agents/openai.yaml"
   ],
   "supportedClients": [],
   "profiles": [
@@ -267,12 +261,7 @@
     "skills/sdd-workflow/assets/tasks.md",
     "skills/sdd-workflow/assets/verification.md",
     "templates/tasks.md",
-    "templates/findings.md",
-    "templates/memory/index.md",
-    "templates/memory/architecture.md",
-    "templates/memory/decisions.md",
-    "templates/memory/tasks.md",
-    "templates/memory/findings.md"
+    "templates/findings.md"
   ],
   "mcpCatalog": "mcp/catalog.json",
   "nativeAgents": [

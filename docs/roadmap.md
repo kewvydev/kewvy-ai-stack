@@ -67,3 +67,11 @@ Add three task categories with progressive specialized guidance, retain explicit
 skill invocation, and remove routine multiagent/auth-auditor mandates. Preserve
 Meritum rules and external skill bodies. Discovery and installer validation do
 not replace future behavior and cost measurement on real scoped tasks.
+
+
+## 0.7.0-dev Bash installation
+
+Replace the Python installation runtime with Bash + jq, add a terminal menu for
+existing profiles, and preserve explicit automation commands, ownership, preview,
+recovery and project records. Keep schema-1 migration reversible and validate in
+disposable locations. Wider OS support and model behavior remain separate work.

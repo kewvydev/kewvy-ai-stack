@@ -1,21 +1,65 @@
 # Codex core installation
 
-Python 3.9+ standard library only. Linux is the tested platform. Distribution is
-a snapshot from a trusted checkout, with no automatic download or scaffolding.
+Bash 4.4+, jq 1.6+, GNU coreutils, find, sort and awk are required. Installation
+does not require Python. Linux is the test platform; macOS/Windows and the minimum
+Bash/jq versions have not been verified. Missing commands are reported before
+installation writes; the script does not install system packages. Distribution
+is a snapshot from a trusted checkout, with no automatic download or scaffolding.
 
 ## Preview and install
 
-From the stack checkout:
+From the stack checkout, open the menu:
 
 ```bash
-python3 tools/stack.py install --dry-run
-python3 tools/stack.py install
+bash tools/stack.sh
 ```
+
+Choose `Global catalog` first. After installation, open a terminal in the existing
+project directory and run the menu there:
+
+```bash
+cd /absolute/path/to/existing-project
+ai-stack
+# Or: bash /absolute/path/to/stack/tools/stack.sh
+```
+
+Choose `Project profile`. The menu displays the current working directory and
+asks `Is this the correct directory? [y/N]`. Confirm it, then select core, NestJS,
+React, Next.js or Spring Boot. It uses the caller's directory even when the script
+or installed launcher lives elsewhere. It does not request a project path. Decline
+or press Enter to cancel, then rerun it from the intended project directory.
+The list comes from the manifest and existing profile JSON files; inherited skills
+are installed once.
+The menu uses a compact terminal layout with short profile descriptions, wrapped
+text and a review of destinations, file counts and selected skills. It requires
+`y` before applying the plan. Invalid choices are
+reprompted; exit, cancellation or end of input applies nothing. A terminal is
+required for the menu. `bash tools/stack.sh --dry-run` previews a menu selection
+without writing installation destinations or asking to apply.
+
+For automation, keep using explicit commands with an explicit target where needed
+(no interactive confirmation):
+
+```bash
+bash tools/stack.sh install --dry-run
+bash tools/stack.sh install
+```
+
+After installation, `ai-stack` without arguments opens the same menu.
+`ai-stack --help` lists commands and options. `--verbose` includes every planned
+file path in the menu preview. Explicit commands retain their detailed log output.
+
+Color uses the terminal palette and requires both output streams to be terminals.
+Set `NO_COLOR=1` to disable it; an empty `NO_COLOR` value also disables color.
+`TERM=dumb` and redirected output remain plain. Layout wraps to the terminal width
+(up to 72 columns, with a 20-column minimum); `COLUMNS` can override that width.
+The interface uses ASCII marks, avoids screen clearing and animations, and keeps
+previous output available in scrollback.
 
 | Default destination | Content |
 | --- | --- |
 | `~/.local/share/ai-engineering-stack/` | Minimal core snapshot, installation state, latest backup |
-| `~/.local/bin/ai-stack` | Launcher requiring `python3` on PATH |
+| `~/.local/bin/ai-stack` | Launcher requiring Bash and jq on PATH |
 | `$CODEX_HOME/AGENTS.md`, normally `~/.codex/AGENTS.md` | Managed block of optional catalog guidance |
 
 The CLI does not modify PATH; use the launcher's absolute path if necessary.
@@ -68,14 +112,39 @@ not record credentials, conversations, application data, or inferred decisions.
 - Editing or removing managed content causes a conflict. Put local instructions
   outside the block; resolve a managed conflict explicitly before updating.
 - Malformed markers, state, unknown paths, and mismatched destinations are conflicts.
-- Preview and status validate the plan without writing anything.
+- Preview and status leave installation destinations unchanged. Bash stages data
+  in a temporary directory and removes it on normal exit.
 - Identical reinstallations do not rewrite content, state, or backups.
 
 To update, run `install --dry-run`, then `install` from the trusted checkout of
 the desired version, using the original destinations. Rerun `ai-stack init` in
 each selected project afterward. Projects are not discovered or updated automatically.
-The first updater supports the same core file set across releases; removing old
-managed paths requires a future explicit migration and currently causes a conflict.
+The Bash migration explicitly retires the owned `package/tools/stack.py` file.
+Other removed managed paths still cause a conflict and require an explicit migration.
+
+### Migrate an existing Python installation
+
+Run the new checkout's Bash installer with the original global destinations:
+
+```bash
+bash tools/stack.sh install --dry-run
+bash tools/stack.sh install
+ai-stack init /absolute/path/to/existing-project --dry-run
+ai-stack init /absolute/path/to/existing-project
+```
+
+Repeat any custom `--prefix`, `--bin-dir`, `--codex-home` and `--skills-dir` options.
+Schema-1 state, ownership hashes, external skills and project records are retained.
+The update replaces the launcher, packages Bash and jq helpers, and removes only
+the stack-owned Python runtime after verifying its old hash. A modified runtime
+causes a conflict. Updates do not scan or initialize projects automatically.
+
+One-operation rollback restores the former runtime, launcher and state. That
+restored Python launcher needs Python again. Roll back project updates before
+the global package when both need recovery. No Python installer implementation remains in the repository.
+`tests/fixtures/schema1-migration.json` supplies static compatibility data; tests
+construct the previous ownership schema and opaque retired-file bytes in temporary
+locations. This checks migration and rollback without executing the former runtime.
 
 ## Project decisions
 
@@ -109,11 +178,14 @@ backup. Empty directories may remain. Decision records survive manual rollback,
 including rollback of the first project initialization.
 
 An ordinary write exception attempts to restore files and state. Following process
-interruption, run rollback with the original paths before retrying installation.
+interruption (including SIGINT/SIGTERM), run rollback with the original paths before retrying installation.
 Rollback accepts files at either side of that transaction and refuses conflicting
-edits. Changes outside instruction blocks survive. If storage remains unwritable,
+edits. Project rollback reads the selected profile from the backup when an initial
+profile installation stopped before committing state. Changes outside instruction
+blocks survive. If storage remains unwritable,
 recovery may also fail; preserve the backup for inspection. Atomic file replacement
-does not guarantee multi-file recovery from power loss.
+does not guarantee multi-file recovery or durability after power loss. Bash uses
+rename-based replacement without an explicit filesystem sync.
 
 Run one installer at a time; cross-process locking and general uninstallation are deferred.
 
@@ -141,7 +213,9 @@ python3 -m unittest discover -s tests -v
 python3 scripts/check_codex_loading.py
 ```
 
-Tests use disposable projects, source releases, and Codex homes. The loading check
+Python remains a development dependency for these checks, not for installation.
+Tests use disposable projects, source releases, and Codex homes, including a PTY
+for menu selection and static schema-1 compatibility data for migration tests. The loading check
 additionally requires Codex CLI, Git, and permission to bind a temporary loopback
 port. It runs the real CLI with an isolated Codex home and a local Responses fixture,
 without credentials or a real model. It checks global/project order and nested
@@ -205,11 +279,11 @@ Fish setup uses `set STACK_SOURCE "/absolute/path/to/stack"` and
 `set NEXT_PROJECT "/absolute/path/to/project"`. Then:
 
 ```fish
-python3 "$STACK_SOURCE/tools/stack.py" install --dry-run
-python3 "$STACK_SOURCE/tools/stack.py" install
-python3 "$STACK_SOURCE/tools/stack.py" init "$NEXT_PROJECT" --profile nextjs --dry-run
-python3 "$STACK_SOURCE/tools/stack.py" init "$NEXT_PROJECT" --profile nextjs
-python3 "$STACK_SOURCE/tools/stack.py" status "$NEXT_PROJECT"
+bash "$STACK_SOURCE/tools/stack.sh" install --dry-run
+bash "$STACK_SOURCE/tools/stack.sh" install
+bash "$STACK_SOURCE/tools/stack.sh" init "$NEXT_PROJECT" --profile nextjs --dry-run
+bash "$STACK_SOURCE/tools/stack.sh" init "$NEXT_PROJECT" --profile nextjs
+bash "$STACK_SOURCE/tools/stack.sh" status "$NEXT_PROJECT"
 ```
 
 Start a fresh session if new agents or instructions do not appear. To explicitly
@@ -284,3 +358,12 @@ Update with install --dry-run, then install. Reinitialize only projects selected
 by the user; an uninitialized project requires no init for the global correction.
 Start a new Codex session to avoid stale instruction history. This update does
 not change model, reasoning effort, personal config, trust or other project rules.
+
+
+## Framework version hints
+
+JavaScript dependency ranges are read from package.json with jq. Spring Boot
+context observes literal Maven parent/properties declarations in pom.xml with
+awk; it does not validate XML, expand entities, resolve Maven properties or run
+Maven. Inspect resolved versions before coding. No framework or application is
+created or upgraded by selecting a profile.

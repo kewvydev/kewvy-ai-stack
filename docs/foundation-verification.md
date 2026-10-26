@@ -296,3 +296,82 @@ security audit or measured token reduction ran. Native discovery confirms contex
 assembly, not semantic category choice or compliance. New sessions avoid retaining
 old instruction history. No Meritum code, rules, model/effort, trust configuration,
 MCP authentication, hooks, external services or remote repository state changed.
+
+## Bash installer migration — 0.7.0-dev, 2026-10-26
+
+User request: replace the Python installation runtime with Bash and select an
+existing profile interactively. Bash + jq prerequisites were explicitly approved.
+Implementation is `tools/stack.sh` with `tools/installer.jq`. The first iteration
+retained the historical Python runtime as a migration fixture; the follow-up below
+removes that implementation at the user's request.
+
+Executed on Linux with Bash 5.3.20, jq 1.8.2 and Codex CLI 0.162.1:
+
+- `python3 scripts/validate.py`: 7 roles, 16 skills, 5 profiles and 4 MCP candidates.
+- `bash -n tools/stack.sh` and `git diff --check`: passed. ShellCheck was not
+  available; no ShellCheck result is claimed.
+- The 38-test installer suite passed. Three subsequently added focused cases
+  also passed, for 41 distinct installer tests: no-Python execution, interrupted
+  first profile initialization and malformed manifest lists. The expanded menu
+  cancellation/EOF/preview case was rerun and passed after the final changes.
+- PTY checks cover global and project selection, invalid input, cancellation,
+  end of input and preview without modifying installation destinations.
+- A real installation created by the 0.6 Python fixture updated to Bash and
+  restored its previous package, state and launcher on rollback. Project profile,
+  user records, external skill bodies and instructions retained their protections.
+- A restricted PATH containing Bash, jq and required utilities, with no Python,
+  installed the global snapshot and initialized Next.js through its installed
+  launcher after deleting the source checkout. Paths with spaces, quotes and
+  literal shell metacharacters worked without evaluation.
+- Faulted atomic renames verified ordinary write recovery. Interrupted global
+  updates and a first NestJS initialization recovered through backup-based rollback.
+- `python3 scripts/check_codex_loading.py`: passed 15 positive instruction/skill/
+  agent discovery cases and one uninitialized-project negative case. Codex also
+  recognized the MCP definitions. The sandbox initially blocked the local listener;
+  the same isolated fixture passed with permission to bind localhost.
+
+The minimum Bash/jq versions, other operating systems, model behavior, actual
+delegation and authenticated MCP connections remain unverified. Maven observations
+are literal version hints, not XML validation or dependency resolution. Bash uses
+atomic rename without an explicit filesystem sync; power-loss durability is not
+guaranteed. All installations were disposable fixtures; personal configuration,
+existing projects and remote repository state were not updated.
+
+### Terminal refinement and installer cleanup — 2026-10-26
+
+The user requested a polished terminal interface and removal of unnecessary
+Python installers. The menu now has a compact brand header, readable action and
+profile choices, concise descriptions, a destination/change review, a completion
+state and optional full file details through --verbose. It wraps to terminal
+width, uses ASCII marks and preserves scrollback. Color requires terminal output
+and respects NO_COLOR and TERM=dumb.
+
+Removed the executable legacy Python installer fixture and obsolete stack bytecode.
+No Python installer source remains. Static schema1-migration.json data replaces
+the fixture; the current migration test constructs schema-1 ownership with opaque
+retired-runtime bytes. This verifies update/rollback contracts, not execution of
+the former Python implementation. The earlier genuine-runtime result above is
+historical evidence from before this cleanup.
+
+Current focused validation passed seven distinct test cases: menu installation,
+cancellation/EOF/preview/verbose output, terminal color fallback, 32-column profile
+layout, schema-1 migration and rollback, a restricted PATH without Python, and
+global reinstall through the installed launcher. The terminal was also inspected
+interactively. Content validation, Bash syntax and git diff --check passed. The
+full installer suite and native Codex discovery were not repeated for this
+presentation-only refinement; their earlier results are recorded above.
+
+### Current-directory confirmation — 2026-10-26
+
+The project menu now displays and confirms the caller's working directory before
+profile selection, replacing manual path input. Declining, an empty answer or EOF
+before confirmation leaves installation destinations unchanged. The existing
+explicit init TARGET command remains available for automation.
+
+Five focused test cases passed: global/project menu installation, menu preview and
+cancellation, unconfirmed-directory preservation, terminal color fallback and
+narrow-terminal layout. The installation case was rerun through the installed
+launcher from a project directory containing spaces, with source and package
+directories elsewhere; state recorded only that working directory as the project
+root. Content validation, Bash syntax and git diff --check also passed. These were
+temporary fixtures; no personal installation or existing project was updated.

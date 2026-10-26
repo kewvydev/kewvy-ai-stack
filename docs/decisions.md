@@ -31,7 +31,7 @@ Decisions from 2026-10-19:
 | AQ-03 | How should SDD activate? | Propose it when definition or traceability would help | Resolved: everyday ODD; SDD after proposal and explicit approval per change |
 | AQ-04 | Custom SDD, OpenSpec, or Spec Kit? | Keep templates available; evaluate the engine when working on SDD | Pending; does not block the lightweight flow |
 | AQ-05 | Per-project installation, global, or both? | Per project initially, including existing repositories | Resolved: global stack plus initialization of existing projects |
-| AQ-06 | CLI and which operating systems? | A simple CLI; Linux first if it covers actual use | Python CLI confirmed; Linux is the current test environment; wider OS support pending |
+| AQ-06 | CLI and which operating systems? | A simple CLI; Linux first if it covers actual use | Bash + jq migration confirmed on 2026-10-26; interactive profile selection; Linux is the test environment; wider OS support pending |
 | AQ-07 | How much autonomy should agents have? | Autonomous local work; external actions follow user authorization | Pending |
 | AQ-08 | Which roles, and when to delegate? | Coordinator, architect, implementer, and verifier on demand | Global verifier/security-auditor plus project codebase-explorer/test-engineer approved; security-sensitive and pre-merge review use the report-only auditor; other roles pending |
 | AQ-09 | Standard testing or TDD? What coverage matters? | Behavior- and risk-based tests; TDD when useful | Pending |
@@ -202,3 +202,76 @@ implicitly discoverable, including UI. Meritum had no local installation metadat
 Its recent conversation also explicitly requested UI and later all M01 client
 integration, and ended at a usage limit. This evidence does not establish that
 every UI action was unrelated or quantify the stack's share of token consumption.
+
+
+## Bash installer and interactive profiles — 2026-10-26
+
+Source: the user requested replacing Python installation with a simpler Bash
+script that installs the existing profile selected in the script. They explicitly
+approved Bash + jq as a prerequisite, with no Python installation runtime.
+This supersedes the Python implementation choice in AQ-06/RQ-13; Python remains
+available for repository validation and migration fixtures.
+
+Expected behavior before implementation:
+
+- No-argument invocation opens a menu for global installation or initialization
+  of an existing project with a catalog profile. Preview the concrete selection
+  before asking to apply; explicit CLI commands remain available for automation.
+- Read the existing core, NestJS, React, Next.js and Spring Boot JSON profiles,
+  preserve inheritance and install only the selected project's capabilities.
+- Preserve the distinction between global catalog installation and project init,
+  schema-1 state, hash ownership, user files/records, dry-run, repeat installation,
+  conflicts, updates and one-operation rollback.
+- Support migration of Python-created installations with the same destinations;
+  retire only the owned old runtime and restore it on rollback.
+- Verify in temporary locations, without installing into personal configuration,
+  Meritum or other existing projects. Do not activate SDD or additional agents.
+
+Implementation choices: Bash 4.4+, jq 1.6+ and existing GNU utilities on Linux;
+no automatic package installation. Keep Python tests and an isolated historical
+runtime fixture. Native discovery and model behavior remain separate evidence.
+
+Affected documents: README, foundation requirements, installation guide, adapter
+contract, catalog, roadmap, manifest, tests and verification record.
+
+
+## Terminal presentation and Python installer removal — 2026-10-26
+
+Source: the user requested a polished Bash interface and deletion of unnecessary
+Python installers. This supersedes retaining the executable historical fixture
+in the first 0.7 iteration; Python test and validation tools remain in scope.
+
+Expected behavior:
+
+- Use the existing Bash installer with clear action/profile choices, concise
+  descriptions, a compact destination/change review and a useful completion state.
+- Keep prompts and content in English. Use the terminal font and palette: cyan
+  for choices, bold for headings, dim for secondary text, green for success and
+  yellow/red for warnings/errors. Color supplements readable text.
+- Wrap text for narrow terminals, preserve scrollback and avoid animation or new
+  UI dependencies. Suppress color for redirected output, NO_COLOR and TERM=dumb.
+- Keep explicit command output usable in scripts; expose full interactive file
+  details through --verbose. Preserve selection, preview, confirmation and safety.
+- Remove the Python installer fixture and obsolete compiled installer cache.
+  Retain only static schema-1 compatibility data and useful Python checks. State
+  explicitly that a synthetic fixture does not execute the historical runtime.
+
+Affected documents: README, installation guide, foundation requirements,
+verification record and fixture notes. No skills, profiles or personal installation
+are changed by this refinement.
+
+
+## Confirm the current project directory — 2026-10-26
+
+Source: the user requested replacing Existing project directory input with a
+confirmation of the directory from which the installer was run.
+
+Expected behavior: Project profile takes the caller's current working directory,
+displays it and requires explicit confirmation before profile selection. A declined,
+empty or interrupted confirmation writes no installation destinations. The script
+and installed launcher may live elsewhere; neither location becomes the project
+target. Global installation and explicit init TARGET commands retain their roles.
+
+Affected documents: README, installation guide, foundation requirements, menu
+regression checks and verification record. Existing path and ownership protections
+continue to apply.

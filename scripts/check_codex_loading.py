@@ -63,7 +63,7 @@ def main():
         options = ["--codex-home", str(codex_home), "--prefix", str(base / "package"), "--bin-dir", str(base / "bin"),
                    "--skills-dir", str(base / ".agents/skills")]
         for arguments in (("install",), ("init", str(project))):
-            subprocess.run([sys.executable, str(ROOT / "tools/stack.py"), *arguments, *options], check=True, capture_output=True)
+            subprocess.run(["bash", str(ROOT / "tools/stack.sh"), *arguments, *options], check=True, capture_output=True)
         nested = project / "nested"
         nested.mkdir()
         (nested / "AGENTS.override.md").write_text("NESTED_OVERRIDE_SENTINEL\n")
@@ -74,7 +74,7 @@ def main():
             target = base / profile
             target.mkdir()
             (target / "AGENTS.md").write_text("PROJECT_PERSONAL_SENTINEL\n")
-            subprocess.run([sys.executable, str(ROOT / "tools/stack.py"), "init", str(target), "--profile", profile, *options], check=True, capture_output=True)
+            subprocess.run(["bash", str(ROOT / "tools/stack.sh"), "init", str(target), "--profile", profile, *options], check=True, capture_output=True)
             profile_projects.append((target, profile))
         with ThreadingHTTPServer(("127.0.0.1", 0), Handler) as server:
             worker = threading.Thread(target=server.serve_forever, daemon=True)

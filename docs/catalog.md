@@ -42,7 +42,8 @@ tools; do not let the installer change its toolchain without explicit selection.
 Initial priorities: profile selection, previews, repeatable installation,
 diagnostics, a versioned manifest, and change recovery.
 A Python standard-library CLI was selected for the first core increment on
-2026-10-19. Global installation, project initialization, preview, state, conflicts,
+2026-10-19; the approved 2026-10-26 migration replaces its installation runtime
+with Bash + jq and adds interactive selection of existing profiles. Global installation, project initialization, preview, state, conflicts,
 updates, and recovery are implemented. Public distribution remains undecided.
 See `installation.md` for the implemented contract and limits.
 

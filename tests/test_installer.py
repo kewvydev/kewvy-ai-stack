@@ -1,17 +1,16 @@
 """Exercise installation boundaries in disposable projects and Codex homes."""
 
-import contextlib
-import importlib.util
-import io
+import hashlib
 import json
 import os
+import pty
+import select
+import time
 from pathlib import Path
 import shutil
 import subprocess
-import sys
 import tempfile
 import unittest
-from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -40,9 +39,9 @@ class InstallerTests(unittest.TestCase):
         self.options = ["--prefix", str(self.prefix), "--bin-dir", str(self.bin_dir), "--codex-home", str(self.codex),
                         "--skills-dir", str(self.user_skills)]
 
-    def cli(self, *args, ok=True, installed=False):
-        executable = [str(self.bin_dir / "ai-stack")] if installed else [sys.executable, str(self.source / "tools/stack.py")]
-        result = subprocess.run(executable + list(map(str, args)) + self.options, capture_output=True, text=True)
+    def cli(self, *args, ok=True, installed=False, env=None):
+        executable = [str(self.bin_dir / "ai-stack")] if installed else ["bash", str(self.source / "tools/stack.sh")]
+        result = subprocess.run(executable + list(map(str, args)) + self.options, capture_output=True, text=True, env=env)
         self.assertEqual(result.returncode, 0 if ok else 1, result.stdout + result.stderr)
         return result
 
@@ -229,27 +228,34 @@ class InstallerTests(unittest.TestCase):
         self.cli("rollback", "--global", ok=False)
         self.assertEqual(before, snapshot(self.base))
 
+    def write_fault_environment(self, destination, mode="fail"):
+        """Fail one real atomic rename; keep fault injection out of production code."""
+        faults = tempfile.TemporaryDirectory(prefix="ai-stack-fault-")
+        self.addCleanup(faults.cleanup)
+        folder = Path(faults.name)
+        real_mv = shutil.which("mv")
+        shim = folder / "mv"
+        shim.write_text("""#!/usr/bin/env bash
+if [[ ${@: -1} == "$FAIL_DESTINATION" && ! -e "$FAIL_MARKER" ]]; then
+    touch "$FAIL_MARKER"
+    if [[ $FAIL_MODE == interrupt ]]; then
+        rm -f -- "${@: -2:1}"
+        kill -KILL "$PPID"
+    fi
+    exit 1
+fi
+exec "$REAL_MV" "$@"
+""")
+        shim.chmod(0o700)
+        return {**os.environ, "TMPDIR": str(folder), "PATH": str(folder) + os.pathsep + os.environ["PATH"],
+                "REAL_MV": real_mv, "FAIL_DESTINATION": str(destination),
+                "FAIL_MARKER": str(folder / "failed"), "FAIL_MODE": mode}
+
     def test_write_failure_restores_previous_files_and_state(self):
         self.install()
-        spec = importlib.util.spec_from_file_location("installer", self.source / "tools/stack.py")
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-        args = type("Args", (), {"command": "init", "global_scope": False, "target": self.project, "codex_home": self.codex})()
-        installation = module.build(args)
-        original = module.atomic_write
-        failed = False
-
-        def fail_once(path, data, executable=False):
-            nonlocal failed
-            if path.name == "decisions.md" and not failed:
-                failed = True
-                raise OSError("Synthetic disk error")
-            return original(path, data, executable)
-
+        env = self.write_fault_environment(self.project / ".ai-stack/decisions.md")
         before = snapshot(self.base)
-        with patch.object(module, "atomic_write", fail_once), contextlib.redirect_stdout(io.StringIO()):
-            with self.assertRaisesRegex(OSError, "Synthetic disk error"):
-                installation.apply()
+        self.cli("init", self.project, ok=False, env=env)
         self.assertEqual(before, snapshot(self.base))
 
     def test_core_installs_only_approved_capabilities(self):
@@ -385,21 +391,10 @@ class InstallerTests(unittest.TestCase):
         self.install()
         expected = {k: v for k, v in snapshot(self.prefix).items() if k != "backup.json"}
         self.next_version()
-        spec = importlib.util.spec_from_file_location("interrupted_installer", self.source / "tools/stack.py")
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-        args = type("Args", (), {"command": "install", "global_scope": False, "prefix": self.prefix,
-                                "bin_dir": self.bin_dir, "codex_home": self.codex, "skills_dir": self.user_skills})()
-        original = module.atomic_write
-
-        def interrupt(path, data, executable=False):
-            if path == self.prefix / "templates/global-rules.md":
-                raise KeyboardInterrupt("Synthetic interruption")
-            return original(path, data, executable)
-
-        with patch.object(module, "atomic_write", interrupt), contextlib.redirect_stdout(io.StringIO()):
-            with self.assertRaises(KeyboardInterrupt):
-                module.build(args).apply()
+        env = self.write_fault_environment(self.prefix / "templates/global-rules.md", "interrupt")
+        result = subprocess.run(["bash", str(self.source / "tools/stack.sh"), "install", *self.options],
+                                env=env, capture_output=True, text=True)
+        self.assertEqual(result.returncode, -9, result.stdout + result.stderr)
         self.cli("install", ok=False)
         self.cli("rollback", "--global")
         self.assertEqual(expected, snapshot(self.prefix))
@@ -511,6 +506,231 @@ class InstallerTests(unittest.TestCase):
         state = json.loads((self.project / ".ai-stack/installation.json").read_text())
         self.assertEqual(state["selection"]["profile"], "core")
         self.assertFalse((self.project / ".agents/skills/nestjs-best-practices/SKILL.md").exists())
+
+    def menu(self, answers, *args, ok=True, installed=False):
+        master, slave = pty.openpty()
+        try:
+            executable = [str(self.bin_dir / "ai-stack")] if installed else ["bash", str(self.source / "tools/stack.sh")]
+            process = subprocess.Popen([*executable, *args, *self.options],
+                                       stdin=slave, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                       text=True, cwd=self.project)
+            os.close(slave)
+            slave = None
+            os.write(master, answers.encode())
+            output, _ = process.communicate(timeout=90)
+            self.assertEqual(process.returncode, 0 if ok else 1, output)
+            return output
+        finally:
+            os.close(master)
+            if slave is not None:
+                os.close(slave)
+
+    def test_menu_selects_global_and_project_profile(self):
+        renamed = self.base / "project with spaces"
+        self.project.rename(renamed)
+        self.project = renamed
+        self.menu("1\ny\n")
+        output = self.menu("2\ny\n3\ny\n", installed=True)
+        self.assertIn(str(self.project), output)
+        self.assertIn("Is this the correct directory? [y/N]", output)
+        self.assertNotIn("Existing project directory", output)
+        self.assertIn("React", output)
+        self.assertIn("Review installation", output)
+        self.assertIn("Installation complete.", output)
+        self.assertNotIn("Create:", output)
+        state = json.loads((self.project / ".ai-stack/installation.json").read_text())
+        self.assertEqual(state["selection"]["profile"], "react")
+        self.assertEqual(state["roots"]["project"], str(self.project))
+        self.assertFalse((self.source / ".ai-stack").exists())
+        self.assertTrue((self.project / ".agents/skills/vercel-react-best-practices/SKILL.md").is_file())
+        self.assertFalse((self.project / ".agents/skills/nestjs-best-practices").exists())
+
+    def test_menu_cancel_invalid_input_and_preview_do_not_write(self):
+        before = snapshot(self.base)
+        self.menu("bad\n0\n")
+        self.menu("1\nn\n")
+        preview = self.menu("1\n", "--dry-run")
+        self.assertIn("Review installation", preview)
+        self.assertNotIn("Create:", preview)
+        self.assertNotIn("\x1b[", preview)
+        detailed = self.menu("1\n", "--dry-run", "--verbose")
+        self.assertIn("Create:", detailed)
+        self.menu("\x04", ok=False)
+        self.assertEqual(before, snapshot(self.base))
+        result = self.cli(ok=False)
+        self.assertIn("needs a terminal", result.stderr)
+
+    def test_menu_rejects_unconfirmed_current_directory_without_writes(self):
+        before = snapshot(self.base)
+        for answer in ("n\n", "\n"):
+            with self.subTest(answer=answer):
+                output = self.menu("2\n" + answer)
+                self.assertIn(str(self.project), output)
+                self.assertIn("Run the installer from the intended project directory.", output)
+                self.assertNotIn("Choose a profile", output)
+        self.menu("2\n\x04", ok=False)
+        self.assertEqual(before, snapshot(self.base))
+
+    def test_schema1_migration_preserves_state_and_rolls_back(self):
+        # Build the prior schema from static data, without keeping a Python installer.
+        fixture = json.loads((ROOT / "tests/fixtures/schema1-migration.json").read_text())
+        self.install()
+        self.cli("init", self.project, "--profile", "nextjs")
+        manifest_path = self.prefix / "stack.json"
+        manifest = json.loads(manifest_path.read_text())
+        manifest["version"] = fixture["version"]
+        manifest["installer"] = "tools/stack.py"
+        manifest["installationFiles"] = [p for p in manifest["installationFiles"]
+                                         if p not in ("tools/stack.sh", "tools/installer.jq")]
+        manifest["installationFiles"].insert(0, "tools/stack.py")
+        manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
+        for name in ("stack.sh", "installer.jq"):
+            (self.prefix / "tools" / name).unlink()
+        runtime = self.prefix / "tools/stack.py"
+        runtime.write_text(fixture["runtimeBytes"])
+        launcher = self.bin_dir / "ai-stack"
+        launcher.write_text(fixture["launcherBytes"])
+        state_path = self.prefix / "installation.json"
+        state = json.loads(state_path.read_text())
+        state["version"] = fixture["version"]
+        for name in ("stack.sh", "installer.jq"):
+            state["files"].pop("package/tools/" + name)
+        for key, path in (("package/stack.json", manifest_path), ("package/tools/stack.py", runtime),
+                          ("bin/ai-stack", launcher)):
+            state["files"][key] = {"kind": "file", "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
+        state_path.write_text(json.dumps(state, indent=2) + "\n")
+        (self.prefix / "backup.json").unlink()
+        project_state = self.project / ".ai-stack/installation.json"
+        state = json.loads(project_state.read_text())
+        state["version"] = fixture["version"]
+        project_state.write_text(json.dumps(state, indent=2) + "\n")
+        (self.project / ".ai-stack/backup.json").unlink()
+        records = self.project / ".ai-stack/decisions.md"
+        records.write_text("# Existing decisions\nKeep the approved architecture.\n")
+        expected = snapshot(self.prefix)
+        old_launcher = launcher.read_bytes()
+        before = snapshot(self.base)
+        self.cli("install", "--dry-run")
+        self.assertEqual(before, snapshot(self.base))
+        self.install()
+        self.assertFalse(runtime.exists())
+        self.assertNotIn(b"python", launcher.read_bytes())
+        self.cli("init", self.project, installed=True)
+        self.assertIn("Keep the approved architecture.", records.read_text())
+        self.assertEqual(json.loads(project_state.read_text())["selection"]["profile"], "nextjs")
+        self.cli("rollback", self.project, installed=True)
+        self.cli("rollback", "--global", installed=True)
+        self.assertEqual(expected, snapshot(self.prefix))
+        self.assertEqual(old_launcher, launcher.read_bytes())
+
+    def test_missing_jq_reports_requirement_without_writes(self):
+        # The dependency probe must happen before creating installation destinations.
+        folder = self.base / "limited-path"
+        folder.mkdir()
+        bash = shutil.which("bash")
+        before = snapshot(self.base)
+        result = subprocess.run([bash, str(self.source / "tools/stack.sh"), "install", *self.options],
+                                env={**os.environ, "PATH": str(folder)}, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("Required command is missing: jq", result.stderr)
+        self.assertEqual(before, snapshot(self.base))
+
+    def test_profile_cycles_and_lexical_symlinks_block_all_writes(self):
+        self.install()
+        profile = self.source / "profiles/react.json"
+        value = json.loads(profile.read_text())
+        value["extends"] = ["nextjs"]
+        profile.write_text(json.dumps(value))
+        before = snapshot(self.base)
+        self.cli("init", self.project, "--profile", "nextjs", ok=False)
+        self.assertEqual(before, snapshot(self.base))
+        alias = self.base / "alias"
+        alias.symlink_to(self.project)
+        self.cli("init", str(alias) + "/../project", ok=False)
+
+    def test_install_and_launcher_work_without_python_and_with_literal_shell_paths(self):
+        commands = tempfile.TemporaryDirectory(prefix="ai-stack-bash-path-")
+        self.addCleanup(commands.cleanup)
+        for name in ("bash", "env", "jq", "realpath", "sha256sum", "base64", "mktemp", "cp", "mv",
+                     "chmod", "mkdir", "rm", "find", "sort", "cmp", "awk", "cat", "dirname"):
+            Path(commands.name, name).symlink_to(shutil.which(name))
+        self.assertIsNone(shutil.which("python3", path=commands.name))
+        env = {**os.environ, "PATH": commands.name}
+        self.prefix = self.base / "package ' $() `literal`"
+        self.options[1] = str(self.prefix)
+        self.cli("install", env=env)
+        shutil.rmtree(self.source)
+        self.cli("init", self.project, "--profile", "nextjs", installed=True, env=env)
+        self.cli("status", "--global", installed=True, env=env)
+
+    def test_interrupted_first_profile_init_uses_backup_selection(self):
+        self.install()
+        env = self.write_fault_environment(self.project / ".ai-stack/installation.json", "interrupt")
+        result = subprocess.run(["bash", str(self.source / "tools/stack.sh"), "init", str(self.project),
+                                 "--profile", "nestjs", *self.options], env=env, capture_output=True, text=True)
+        self.assertEqual(result.returncode, -9, result.stdout + result.stderr)
+        self.assertFalse((self.project / ".ai-stack/installation.json").exists())
+        self.cli("rollback", self.project)
+        self.assertFalse((self.project / ".agents/skills/nestjs-best-practices/SKILL.md").exists())
+        self.assertTrue((self.project / ".ai-stack/decisions.md").exists())
+
+    def test_malformed_catalog_lists_are_rejected_before_writes(self):
+        path = self.source / "stack.json"
+        original = json.loads(path.read_text())
+        for key, value in (("installationFiles", None), ("globalSkills", "wrong"),
+                           ("projectAgents", {}), ("profiles", ["../outside.json"])):
+            with self.subTest(field=key):
+                path.write_text(json.dumps({**original, key: value}))
+                before = snapshot(self.base)
+                result = self.cli("install", ok=False)
+                self.assertIn("Invalid installation manifest", result.stderr)
+                self.assertEqual(before, snapshot(self.base))
+
+class TerminalPresentationTests(unittest.TestCase):
+    def terminal(self, answers="0\n", **overrides):
+        master, slave = pty.openpty()
+        env = {key: value for key, value in os.environ.items() if key != "NO_COLOR"}
+        env.update(TERM="xterm-256color", COLUMNS="72")
+        env.update(overrides)
+        process = subprocess.Popen(["bash", str(ROOT / "tools/stack.sh")], stdin=slave,
+                                   stdout=slave, stderr=slave, env=env)
+        os.close(slave)
+        chunks = []
+        deadline = time.monotonic() + 30
+        try:
+            os.write(master, answers.encode())
+            while time.monotonic() < deadline:
+                ready, _, _ = select.select([master], [], [], 1)
+                if not ready:
+                    if process.poll() is not None:
+                        break
+                    continue
+                try:
+                    chunk = os.read(master, 65536)
+                except OSError:
+                    break
+                if not chunk:
+                    break
+                chunks.append(chunk)
+            self.assertEqual(process.wait(timeout=2), 0)
+            return b"".join(chunks).decode()
+        finally:
+            if process.poll() is None:
+                process.kill()
+                process.wait()
+            os.close(master)
+
+    def test_color_respects_terminal_capabilities_and_no_color(self):
+        self.assertIn("\x1b[36m", self.terminal())
+        self.assertNotIn("\x1b[", self.terminal(NO_COLOR=""))
+        self.assertNotIn("\x1b[", self.terminal(TERM="dumb"))
+
+    def test_narrow_profile_menu_wraps_and_preserves_readable_options(self):
+        output = self.terminal("2\ny\n0\n", COLUMNS="32", NO_COLOR="1")
+        self.assertIn("[3] React", output)
+        self.assertIn("[4] Next.js", output)
+        for line in output.splitlines():
+            self.assertLessEqual(len(line), 32, line)
 
 if __name__ == "__main__":
     unittest.main()
